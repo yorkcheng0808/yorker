@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>yorker - Roblox 風格雲端 3D 遊戲平台 (巨大地圖、NPC對話與HTML運行版)</title>
+    <title>yorker - Roblox 風格雲端 3D 遊戲平台 (敏捷視角與多元方塊形狀縮放版)</title>
     <!-- 引入 Three.js 及其控制器 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -575,11 +575,14 @@
                 <!-- Panel 0: 3D 編輯器 -->
                 <div class="workspace-panel active" style="padding: 0;">
                     <div class="editor-ui-overlay">
-                        <button class="btn-roblox-primary" style="padding: 8px 15px;" onclick="addStudioBlock()">+ 新增 3D 方塊</button>
-                        <button class="btn-roblox-secondary" style="padding: 8px 15px; margin: 0; background: #334155;" onclick="deleteSelectedStudioBlock()">刪除選取方塊</button>
+                        <button class="btn-roblox-primary" style="padding: 8px 12px;" onclick="addStudioBlock()">+ 新增方塊</button>
+                        <button class="btn-roblox-secondary" style="padding: 8px 12px; margin: 0; background: #334155;" onclick="setStudioTool('translate')">📍 移動</button>
+                        <button class="btn-roblox-secondary" style="padding: 8px 12px; margin: 0; background: #334155;" onclick="setStudioTool('rotate')">🔄 旋轉</button>
+                        <button class="btn-roblox-secondary" style="padding: 8px 12px; margin: 0; background: #7c3aed;" onclick="setStudioTool('scale')">📏 拉長/壓扁</button>
+                        <button class="btn-roblox-secondary" style="padding: 8px 12px; margin: 0; background: #ef4444;" onclick="deleteSelectedStudioBlock()">🗑️ 刪除</button>
                     </div>
                     <div class="editor-tips">
-                        💡 <b>編輯操作</b>：滑鼠右鍵或單指拖移旋轉視角 (不自動彈回) | 點擊方塊以移動/旋轉
+                        💡 <b>敏捷編輯</b>：點擊方塊後可透過上方按鈕切換 <b>移動</b>、<b>旋轉</b> 或 <b>拉長/壓扁</b> 打造多元形狀！
                     </div>
                     <div class="three-canvas-container" id="studio-canvas-container"></div>
                 </div>
@@ -593,8 +596,8 @@
                             <input type="text" id="editor-npc-name" value="守衛機器人">
                         </div>
                         <div class="form-row">
-                            <label>NPC 對話內容 (當玩家長按右鍵互動時顯示)</label>
-                            <textarea id="editor-npc-dialogue" rows="4">你好，冒險者！歡迎來到這個巨大的 3D 世界！請小心不要掉出邊界喔！</textarea>
+                            <label>NPC 對話內容 (當玩家靠近時顯示)</label>
+                            <textarea id="editor-npc-dialogue" rows="4">你好，冒險者！快來看看我用長條方塊和扁平地板建造的世界吧！</textarea>
                         </div>
                         <div class="form-row">
                             <label>NPC 位置座標 (X, Y, Z)</label>
@@ -632,7 +635,7 @@
                         <h3>🖼️ 遊戲大廳封面縮圖上傳</h3>
                         <div class="form-row">
                             <label>上傳自定義遊戲圖示 / 縮圖圖片</label>
-                            <input type="file" id="editor-game-icon" accept="image/*">
+                            <input type="file" id="editor-game-icon" accept="image/*" onchange="handleGameIconUpload(event)">
                         </div>
                     </div>
                 </div>
@@ -648,7 +651,7 @@
             
             <div class="three-canvas-container" id="play-canvas-container">
                 <div class="editor-tips" style="bottom: 15px; left: 15px; z-index: 25;">
-                    🎮 <b>操作指南</b>：左下角圓形搖桿移動 | <b>滑鼠右鍵或單指拖移</b>旋轉視角 | **長按右鍵**與 NPC 對話
+                    🎮 <b>敏捷操作</b>：左下角圓形搖桿移動 | <b>滑鼠右鍵或單指拖移</b>旋轉視角 | 靠近 NPC 自動觸發對話
                 </div>
             </div>
 
@@ -685,18 +688,22 @@
         let customGameIconUrl = null;
         let activeNpcConfig = { name: "守衛機器人", dialogue: "你好，冒險者！", x: 4, y: 0, z: -4, color: 0xec4899 };
         let activeHtmlCode = "";
+        let serializedBlocks = [];
 
         function initCloudDatabase() {
             if (!localStorage.getItem('yorker_cloud_games')) {
                 const defaultGames = [
                     {
                         id: 'game_official_1',
-                        title: '方塊人大冒險 (巨大地圖)',
+                        title: '方塊人大冒險 (多元形狀展示)',
                         author: 'yorker官方',
                         icon: '🤖',
-                        playerColor: 0x00a2ff,
-                        npc: { name: "官方導覽員", dialogue: "歡迎來到 yorker 雲端遊戲平台！這是一張巨大地圖，盡情探索吧！", x: 5, y: 0, z: -5, color: 0x3b82f6 },
-                        htmlCode: '<div style="padding:20px; font-family:sans-serif; text-align:center;"><h2 style="color:#00a2ff;">官方小工具</h2><p>這是預設遊戲內的 HTML 互動網頁！</p></div>'
+                        npc: { name: "官方導覽員", dialogue: "歡迎來到 yorker！這裡的長條牆壁和高聳柱子都是用拉長與縮放功能建造的喔！", x: 5, y: 0, z: -5, color: 0x3b82f6 },
+                        htmlCode: '<div style="padding:20px; font-family:sans-serif; text-align:center;"><h2 style="color:#00a2ff;">官方小工具</h2><p>這是預設遊戲內的 HTML 互動網頁！</p></div>',
+                        blocks: [
+                            { position: {x: 5, y: 2, z: 0}, rotation: {x:0, y:0, z:0}, scale: {x: 1, y: 6, z: 5}, color: 0x3b82f6 },
+                            { position: {x: -5, y: 0.5, z: -5}, rotation: {x:0, y:0, z:0}, scale: {x: 8, y: 0.5, z: 2}, color: 0x10b981 }
+                        ]
                     }
                 ];
                 localStorage.setItem('yorker_cloud_games', JSON.stringify(defaultGames));
@@ -788,13 +795,14 @@
                 joystickZone.style.display = 'none';
                 htmlBtn.style.display = 'none';
                 htmlWindow.style.display = 'none';
+                stopGamePlayLoop();
             }
 
             setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 50);
         }
 
         function openStudio() {
-            document.getElementById('game-title-input').value = currentUser + " 的巨大 3D 世界";
+            document.getElementById('game-title-input').value = currentUser + " 的多元 3D 世界";
             switchView('studio-view');
             initStudio3D();
         }
@@ -834,25 +842,40 @@
             });
         }
 
+        function handleGameIconUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    customGameIconUrl = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
         // --- 3D 編輯器 ---
         let studioScene, studioCamera, studioRenderer, studioControls, studioTransformControls;
         let studioBlocks = [];
 
         function initStudio3D() {
-            if (studioRenderer) return;
+            if (studioRenderer) {
+                setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+                return;
+            }
             const container = document.getElementById('studio-canvas-container');
             
             studioScene = new THREE.Scene();
             studioScene.background = new THREE.Color(0x0f172a);
 
             studioCamera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
-            studioCamera.position.set(10, 10, 10);
+            studioCamera.position.set(15, 15, 15);
 
             studioRenderer = new THREE.WebGLRenderer({ antialias: true });
             studioRenderer.setSize(container.clientWidth, container.clientHeight);
             container.appendChild(studioRenderer.domElement);
 
             studioControls = new THREE.OrbitControls(studioCamera, studioRenderer.domElement);
+            studioControls.rotateSpeed = 1.2; // 提升工作室視角旋轉敏捷度
             studioControls.mouseButtons = { LEFT: THREE.MOUSE.NONE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
             studioControls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
 
@@ -862,27 +885,31 @@
 
             studioScene.add(new THREE.AmbientLight(0xffffff, 0.7));
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            dirLight.position.set(10, 20, 10);
+            dirLight.position.set(20, 40, 20);
             studioScene.add(dirLight);
 
-            // 巨大網格與地板
-            const gridHelper = new THREE.GridHelper(60, 60, 0x00a2ff, 0x334155);
-            gridHelper.position.y = -0.01;
-            studioScene.add(gridHelper);
+            // 建立初始地板
+            const planeGeo = new THREE.BoxGeometry(60, 1, 60);
+            const planeMat = new THREE.MeshStandardMaterial({ color: 0x1e293b });
+            const plane = new THREE.Mesh(planeGeo, planeMat);
+            plane.position.y = -1;
+            studioScene.add(plane);
+            studioBlocks.push(plane);
 
-            addStudioBlock(0, 0.5, 0, 0x00a2ff);
-
+            // 點擊選取方塊
             const raycaster = new THREE.Raycaster();
             const mouse = new THREE.Vector2();
 
-            studioRenderer.domElement.addEventListener('pointerdown', (event) => {
-                if (event.button !== 0 && event.pointerType === 'mouse') return;
-                const rect = studioRenderer.domElement.getBoundingClientRect();
+            container.addEventListener('pointerdown', (event) => {
+                const rect = container.getBoundingClientRect();
                 mouse.x = ((event.clientX - rect.left) / container.clientWidth) * 2 - 1;
                 mouse.y = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
                 raycaster.setFromCamera(mouse, studioCamera);
                 const intersects = raycaster.intersectObjects(studioBlocks);
-                if (intersects.length > 0) studioTransformControls.attach(intersects[0].object);
+                if (intersects.length > 0) {
+                    const obj = intersects[0].object;
+                    studioTransformControls.attach(obj);
+                }
             });
 
             function animateStudio() {
@@ -891,241 +918,296 @@
                 studioRenderer.render(studioScene, studioCamera);
             }
             animateStudio();
+
+            window.addEventListener('resize', () => {
+                if (!container.clientWidth) return;
+                studioCamera.aspect = container.clientWidth / container.clientHeight;
+                studioCamera.updateProjectionMatrix();
+                studioRenderer.setSize(container.clientWidth, container.clientHeight);
+            });
         }
 
-        function addStudioBlock(x = 0, y = 0.5, z = 0, colorHex = 0x7c3aed) {
-            const geo = new THREE.BoxGeometry(1, 1, 1);
-            const mat = new THREE.MeshStandardMaterial({ color: colorHex, roughness: 0.3 });
+        function addStudioBlock() {
+            const geo = new THREE.BoxGeometry(4, 4, 4);
+            const mat = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
             const mesh = new THREE.Mesh(geo, mat);
-            mesh.position.set(x, y, z);
+            mesh.position.set(0, 2, 0);
             studioScene.add(mesh);
             studioBlocks.push(mesh);
             studioTransformControls.attach(mesh);
         }
 
+        function setStudioTool(mode) {
+            studioTransformControls.setMode(mode);
+        }
+
         function deleteSelectedStudioBlock() {
             const obj = studioTransformControls.object;
-            if (obj && studioBlocks.length > 1) {
+            if (obj && obj !== studioBlocks[0]) {
                 studioTransformControls.detach();
                 studioScene.remove(obj);
                 studioBlocks = studioBlocks.filter(b => b !== obj);
-            } else {
-                alert('無法刪除最後一個基礎方塊！');
             }
-        }
-
-        // --- 遊戲遊玩與 NPC 互動、HTML 運行系統 ---
-        let playScene, playCamera, playRenderer, playControls;
-        let avatarGroup, leftArm, rightArm, leftLeg, rightLeg;
-        let keyStates = { w: false, a: false, s: false, d: false };
-        let joystickVector = { x: 0, y: 0 };
-        let isPlayInitialized = false;
-        let clock = new THREE.Clock();
-
-        let isFalling = false;
-        let isShattered = false;
-        let shatterPieces = [];
-        let fallVelocity = 0;
-        let respawnTimer = 0;
-        let activePlayerColor = 0x00a2ff;
-        let currentNpcMesh = null;
-
-        function previewGame() {
-            collectStudioData();
-            document.getElementById('playing-game-title').innerText = "預覽遊戲: " + (document.getElementById('game-title-input').value || "未命名");
-            switchView('play-view');
-            initPlay3D();
-        }
-
-        function playGameObj(g) {
-            document.getElementById('playing-game-title').innerText = "正在遊玩: " + g.title;
-            activePlayerColor = g.playerColor || 0x00a2ff;
-            if (g.npc) activeNpcConfig = g.npc;
-            activeHtmlCode = g.htmlCode || "<p>尚無 HTML 程式碼</p>";
-            
-            switchView('play-view');
-            initPlay3D();
         }
 
         function collectStudioData() {
-            activePlayerColor = 0x00a2ff;
             activeNpcConfig = {
-                name: document.getElementById('editor-npc-name').value || "NPC",
-                dialogue: document.getElementById('editor-npc-dialogue').value || "你好！",
+                name: document.getElementById('editor-npc-name').value,
+                dialogue: document.getElementById('editor-npc-dialogue').value,
                 x: parseFloat(document.getElementById('editor-npc-x').value) || 4,
                 y: parseFloat(document.getElementById('editor-npc-y').value) || 0,
                 z: parseFloat(document.getElementById('editor-npc-z').value) || -4,
-                color: parseInt(document.getElementById('editor-npc-color').value.replace('#', '0x'))
+                color: document.getElementById('editor-npc-color').value
             };
-            activeHtmlCode = document.getElementById('editor-html-code').value || "";
+            activeHtmlCode = document.getElementById('editor-html-code').value;
 
-            const gameIconInput = document.getElementById('editor-game-icon');
-            if (gameIconInput.files && gameIconInput.files[0]) {
-                customGameIconUrl = URL.createObjectURL(gameIconInput.files[0]);
-            }
+            // 序列化所有自定義方塊（位置、旋轉、縮放與顏色）
+            serializedBlocks = studioBlocks.slice(1).map(b => ({
+                position: { x: b.position.x, y: b.position.y, z: b.position.z },
+                rotation: { x: b.rotation.x, y: b.rotation.y, z: b.rotation.z },
+                scale: { x: b.scale.x, y: b.scale.y, z: b.scale.z },
+                color: b.material.color.getHex()
+            }));
         }
 
-        function initPlay3D() {
+        function publishGameToCloud() {
+            collectStudioData();
+            const title = document.getElementById('game-title-input').value.trim() || "未命名 3D 遊戲";
+            const games = JSON.parse(localStorage.getItem('yorker_cloud_games')) || [];
+
+            const newGame = {
+                id: 'game_' + Date.now(),
+                title: title,
+                author: currentUser,
+                icon: '🚀',
+                iconType: customGameIconUrl ? 'image' : 'emoji',
+                iconData: customGameIconUrl,
+                npc: activeNpcConfig,
+                htmlCode: activeHtmlCode,
+                blocks: serializedBlocks
+            };
+
+            games.unshift(newGame);
+            localStorage.setItem('yorker_cloud_games', JSON.stringify(games));
+            alert('🎉 遊戲已成功儲存並發布到雲端大廳！');
+            loadCloudLobbyGames();
+            switchView('lobby-view');
+        }
+
+        function previewGame() {
+            collectStudioData();
+            const previewObj = {
+                title: document.getElementById('game-title-input').value,
+                author: currentUser,
+                npc: activeNpcConfig,
+                htmlCode: activeHtmlCode,
+                blocks: serializedBlocks
+            };
+            playGameObj(previewObj);
+        }
+
+        // --- 遊戲遊玩邏輯 ---
+        let playScene, playCamera, playRenderer, playAnimationId;
+        let playerMesh, npcMesh;
+        let joystickVector = { x: 0, y: 0 };
+        let isJoystickActive = false;
+        let activeGameData = null;
+
+        function playGameObj(gameObj) {
+            activeGameData = gameObj;
+            document.getElementById('playing-game-title').innerText = gameObj.title + " (作者: " + gameObj.author + ")";
+            document.getElementById('html-render-iframe').srcdoc = gameObj.htmlCode || '<p>無內嵌網頁</p>';
+            switchView('play-view');
+            initPlay3D(gameObj);
+        }
+
+        function initPlay3D(gameObj) {
             const container = document.getElementById('play-canvas-container');
-            
-            if (!isPlayInitialized) {
-                playScene = new THREE.Scene();
-                playScene.background = new THREE.Color(0x0f172a);
+            container.innerHTML = `
+                <div class="editor-tips" style="bottom: 15px; left: 15px; z-index: 25;">
+                    🎮 <b>敏捷操作</b>：左下角圓形搖桿移動 | <b>滑鼠右鍵或單指拖移</b>旋轉視角 | 靠近 NPC 自動觸發對話
+                </div>
+            `;
 
-                playCamera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+            playScene = new THREE.Scene();
+            playScene.background = new THREE.Color(0x0f172a);
 
-                playRenderer = new THREE.WebGLRenderer({ antialias: true });
-                playRenderer.setSize(container.clientWidth, container.clientHeight);
-                container.appendChild(playRenderer.domElement);
+            playCamera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
 
-                playControls = new THREE.OrbitControls(playCamera, playRenderer.domElement);
-                playControls.mouseButtons = { LEFT: THREE.MOUSE.NONE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
-                playControls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
-                playControls.enablePan = false;
-                playControls.maxPolarAngle = Math.PI / 2 - 0.05;
+            playRenderer = new THREE.WebGLRenderer({ antialias: true });
+            playRenderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(playRenderer.domElement);
 
-                playScene.add(new THREE.AmbientLight(0xffffff, 0.7));
-                const dLight = new THREE.DirectionalLight(0xffffff, 0.8);
-                dLight.position.set(10, 20, 10);
-                playScene.add(dLight);
+            playScene.add(new THREE.AmbientLight(0xffffff, 0.7));
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(20, 40, 20);
+            playScene.add(dirLight);
 
-                // 巨大化地板 (尺寸 50 x 50)
-                const floor = new THREE.Mesh(
-                    new THREE.PlaneGeometry(50, 50),
-                    new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 })
-                );
-                floor.rotation.x = -Math.PI / 2;
-                playScene.add(floor);
+            // 地板
+            const planeGeo = new THREE.BoxGeometry(80, 1, 80);
+            const planeMat = new THREE.MeshStandardMaterial({ color: 0x1e293b });
+            const plane = new THREE.Mesh(planeGeo, planeMat);
+            plane.position.y = -1;
+            playScene.add(plane);
 
-                createNpcInScene();
-                createAvatar();
-                initVirtualJoystick();
-                initRightClickDialogueListener();
-
-                function animatePlay() {
-                    requestAnimationFrame(animatePlay);
-                    const delta = clock.getDelta();
-
-                    if (!isShattered) {
-                        const speed = 0.09;
-                        let isMoving = false;
-                        let moveX = 0;
-                        let moveZ = 0;
-
-                        if (!isFalling) {
-                            if (keyStates.w) { moveZ -= speed; isMoving = true; }
-                            if (keyStates.s) { moveZ += speed; isMoving = true; }
-                            if (keyStates.a) { moveX -= speed; isMoving = true; }
-                            if (keyStates.d) { moveX += speed; isMoving = true; }
-
-                            if (Math.abs(joystickVector.x) > 0.05 || Math.abs(joystickVector.y) > 0.05) {
-                                moveX += joystickVector.x * speed * 1.5;
-                                moveZ += joystickVector.y * speed * 1.5;
-                                isMoving = true;
-                            }
-                        }
-
-                        if (isMoving) {
-                            avatarGroup.position.x += moveX;
-                            avatarGroup.position.z += moveZ;
-                            const angle = Math.atan2(moveX, moveZ);
-                            avatarGroup.rotation.y = angle;
-
-                            const walkCycle = clock.getElapsedTime() * 12;
-                            leftLeg.rotation.x = Math.sin(walkCycle) * 0.6;
-                            rightLeg.rotation.x = -Math.sin(walkCycle) * 0.6;
-                            leftArm.rotation.x = -Math.sin(walkCycle) * 0.6;
-                            rightArm.rotation.x = Math.sin(walkCycle) * 0.6;
-                        } else if (!isFalling) {
-                            leftLeg.rotation.x = THREE.MathUtils.lerp(leftLeg.rotation.x, 0, 0.2);
-                            rightLeg.rotation.x = THREE.MathUtils.lerp(rightLeg.rotation.x, 0, 0.2);
-                            leftArm.rotation.x = THREE.MathUtils.lerp(leftArm.rotation.x, 0, 0.2);
-                            rightArm.rotation.x = THREE.MathUtils.lerp(rightArm.rotation.x, 0, 0.2);
-                        }
-
-                        // 巨大地圖邊界判定 (24格)
-                        const edgeLimit = 24;
-                        const px = avatarGroup.position.x;
-                        const pz = avatarGroup.position.z;
-
-                        if (Math.abs(px) > edgeLimit || Math.abs(pz) > edgeLimit) {
-                            isFalling = true;
-                        }
-
-                        if (isFalling) {
-                            fallVelocity += 0.015;
-                            avatarGroup.position.y -= fallVelocity;
-
-                            if (avatarGroup.position.y < -5 && !isShattered) {
-                                triggerShatterAndRespawn();
-                            }
-                        }
-                    } else {
-                        shatterPieces.forEach(p => {
-                            p.mesh.position.add(p.velocity);
-                            p.mesh.rotation.x += p.rotSpeed.x;
-                            p.mesh.rotation.y += p.rotSpeed.y;
-                        });
-
-                        respawnTimer += delta;
-                        if (respawnTimer > 2.0) {
-                            resetAvatar();
+            // 載入自定義方塊（支援拉長、壓扁、旋轉、各種尺寸與顏色）
+            if (gameObj.blocks && gameObj.blocks.length > 0) {
+                gameObj.blocks.forEach(bData => {
+                    const bGeo = new THREE.BoxGeometry(4, 4, 4);
+                    const bMat = new THREE.MeshStandardMaterial({ color: bData.color });
+                    const b = new THREE.Mesh(bGeo, bMat);
+                    b.position.set(bData.position.x, bData.position.y, bData.position.z);
+                    b.rotation.set(bData.rotation.x, bData.rotation.y, bData.rotation.z);
+                    b.scale.set(bData.scale.x, bData.scale.y, bData.scale.z);
+                    playScene.add(b);
+                });
+            } else {
+                // 預設裝飾方塊
+                for(let i = -30; i <= 30; i += 10) {
+                    for(let j = -30; j <= 30; j += 10) {
+                        if (Math.abs(i) > 5 || Math.abs(j) > 5) {
+                            const bGeo = new THREE.BoxGeometry(4, Math.random() * 6 + 2, 4);
+                            const bMat = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
+                            const b = new THREE.Mesh(bGeo, bMat);
+                            b.position.set(i, b.geometry.parameters.height/2 - 1, j);
+                            playScene.add(b);
                         }
                     }
-
-                    const targetCamPos = new THREE.Vector3(
-                        avatarGroup.position.x,
-                        Math.max(avatarGroup.position.y, 0) + 3.5,
-                        avatarGroup.position.z + 6
-                    );
-                    playCamera.position.lerp(targetCamPos, 0.1);
-                    playControls.target.copy(avatarGroup.position);
-                    playControls.target.y = Math.max(avatarGroup.position.y, 0) + 1;
-                    playControls.update();
-
-                    playRenderer.render(playScene, playCamera);
                 }
-                animatePlay();
-                isPlayInitialized = true;
-            } else {
-                updateNpcInScene();
-                updateAvatarShirtColor();
             }
 
-            resetAvatar();
-            window.dispatchEvent(new Event('resize'));
-        }
+            // 玩家角色
+            const playerGeo = new THREE.BoxGeometry(2, 3, 1);
+            const playerMat = new THREE.MeshStandardMaterial({ color: 0x00a2ff });
+            playerMesh = new THREE.Mesh(playerGeo, playerMat);
+            playerMesh.position.set(0, 1.5, 0);
+            playScene.add(playerMesh);
 
-        // --- 長按滑鼠右鍵與 NPC 對話偵測 ---
-        function initRightClickDialogueListener() {
-            const container = document.getElementById('play-canvas-container');
-            const raycaster = new THREE.Raycaster();
-            const mouse = new THREE.Vector2();
-            let rightClickTimer = null;
+            // NPC 角色
+            const npcConfig = gameObj.npc || { name: "守衛機器人", dialogue: "你好！", x: 4, y: 0, z: -4, color: 0xec4899 };
+            const npcGeo = new THREE.BoxGeometry(2, 3, 1);
+            const npcMat = new THREE.MeshStandardMaterial({ color: npcConfig.color || 0xec4899 });
+            npcMesh = new THREE.Mesh(npcGeo, npcMat);
+            npcMesh.position.set(npcConfig.x, 1.5, npcConfig.z);
+            playScene.add(npcMesh);
+
+            // 虛擬搖桿互動
+            setupVirtualJoystick();
+
+            let cameraAngle = 0;
+            isDraggingCamera = false;
+            let previousMousePosition = { x: 0, y: 0 };
 
             container.addEventListener('pointerdown', (e) => {
-                if (e.button === 2) { // 右鍵按下
-                    rightClickTimer = setTimeout(() => {
-                        checkNpcInteraction();
-                    }, 500); // 長按 0.5 秒觸發對話
+                if (e.button === 2 || e.pointerType === 'touch') {
+                    isDraggingCamera = true;
+                    previousMousePosition = { x: e.clientX, y: e.clientY };
                 }
             });
 
-            container.addEventListener('pointerup', (e) => {
-                if (e.button === 2) {
-                    clearTimeout(rightClickTimer);
-                }
+            window.addEventListener('pointermove', (e) => {
+                if (!isDraggingCamera) return;
+                const deltaX = e.clientX - previousMousePosition.x;
+                cameraAngle -= deltaX * 0.016; // 提高靈敏度倍率，讓視角旋轉更加敏捷流暢
+                previousMousePosition = { x: e.clientX, y: e.clientY };
             });
 
-            function checkNpcInteraction() {
-                if (!currentNpcMesh || !avatarGroup) return;
-                const distance = avatarGroup.position.distanceTo(currentNpcMesh.position);
-                if (distance < 5.0) { // 距離 5 單位以內可對話
-                    showDialogue(activeNpcConfig.name, activeNpcConfig.dialogue);
+            window.addEventListener('pointerup', () => { isDraggingCamera = false; });
+            container.addEventListener('contextmenu', e => e.preventDefault());
+
+            let dialogueShown = false;
+
+            function animatePlay() {
+                playAnimationId = requestAnimationFrame(animatePlay);
+
+                // 移動玩家
+                if (joystickVector.x !== 0 || joystickVector.y !== 0) {
+                    const speed = 0.15;
+                    const moveX = (joystickVector.x * Math.cos(cameraAngle) - joystickVector.y * Math.sin(cameraAngle)) * speed;
+                    const moveZ = (joystickVector.x * Math.sin(cameraAngle) + joystickVector.y * Math.cos(cameraAngle)) * speed;
+                    
+                    playerMesh.position.x += moveX;
+                    playerMesh.position.z += moveZ;
+                    playerMesh.rotation.y = Math.atan2(moveX, moveZ);
+                }
+
+                // 相機跟隨玩家
+                const camDist = 12;
+                const camHeight = 7;
+                playCamera.position.x = playerMesh.position.x - Math.sin(cameraAngle) * camDist;
+                playCamera.position.z = playerMesh.position.z - Math.cos(cameraAngle) * camDist;
+                playCamera.position.y = playerMesh.position.y + camHeight;
+                playCamera.lookAt(playerMesh.position.x, playerMesh.position.y + 1, playerMesh.position.z);
+
+                // 檢查與 NPC 距離
+                const distToNpc = playerMesh.position.distanceTo(npcMesh.position);
+                if (distToNpc < 4) {
+                    if (!dialogueShown) {
+                        showDialogue(npcConfig.name, npcConfig.dialogue);
+                        dialogueShown = true;
+                    }
                 } else {
-                    showDialogue("提示", "離 NPC 太遠了，請靠近一點再長按右鍵對話！");
+                    if (distToNpc > 6 && dialogueShown) {
+                        closeDialogue();
+                        dialogueShown = false;
+                    }
                 }
+
+                playRenderer.render(playScene, playCamera);
             }
+            animatePlay();
+        }
+
+        let isDraggingCamera = false;
+
+        function stopGamePlayLoop() {
+            if (playAnimationId) {
+                cancelAnimationFrame(playAnimationId);
+                playAnimationId = null;
+            }
+        }
+
+        function setupVirtualJoystick() {
+            const zone = document.getElementById('virtual-joystick-zone');
+            const knob = document.getElementById('virtual-joystick-knob');
+            let rect = zone.getBoundingClientRect();
+            let center = { x: rect.width / 2, y: rect.height / 2 };
+            let maxRadius = 45;
+
+            function handleTouch(clientX, clientY) {
+                rect = zone.getBoundingClientRect();
+                let x = clientX - rect.left - center.x;
+                let y = clientY - rect.top - center.y;
+                let dist = Math.sqrt(x * x + y * y);
+
+                if (dist > maxRadius) {
+                    x = (x / dist) * maxRadius;
+                    y = (y / dist) * maxRadius;
+                }
+
+                knob.style.transform = `translate(${x}px, ${y}px)`;
+                joystickVector.x = x / maxRadius;
+                joystickVector.y = y / maxRadius;
+            }
+
+            zone.addEventListener('pointerdown', (e) => {
+                isJoystickActive = true;
+                handleTouch(e.clientX, e.clientY);
+                zone.setPointerCapture(e.pointerId);
+            });
+
+            zone.addEventListener('pointermove', (e) => {
+                if (!isJoystickActive) return;
+                handleTouch(e.clientX, e.clientY);
+            });
+
+            zone.addEventListener('pointerup', (e) => {
+                isJoystickActive = false;
+                knob.style.transform = `translate(0px, 0px)`;
+                joystickVector.x = 0;
+                joystickVector.y = 0;
+                zone.releasePointerCapture(e.pointerId);
+            });
         }
 
         function showDialogue(name, text) {
@@ -1138,224 +1220,9 @@
             document.getElementById('dialogue-box').style.display = 'none';
         }
 
-        // --- 內嵌 HTML 視窗開關與加載 ---
         function toggleEmbeddedHtmlWindow() {
             const win = document.getElementById('embedded-html-container');
-            const iframe = document.getElementById('html-render-iframe');
-            
-            if (win.style.display === 'flex') {
-                win.style.display = 'none';
-            } else {
-                win.style.display = 'flex';
-                // 透過 srcdoc 將使用者寫的 HTML 渲染至 iframe 內運行
-                iframe.srcdoc = activeHtmlCode;
-            }
-        }
-
-        // --- 虛擬搖桿 ---
-        function initVirtualJoystick() {
-            const zone = document.getElementById('virtual-joystick-zone');
-            const knob = document.getElementById('virtual-joystick-knob');
-            let isTouching = false;
-            let maxRadius = 45;
-
-            zone.addEventListener('pointerdown', (e) => {
-                isTouching = true;
-                updateJoystickPosition(e);
-            });
-
-            window.addEventListener('pointermove', (e) => {
-                if (!isTouching) return;
-                updateJoystickPosition(e);
-            });
-
-            window.addEventListener('pointerup', () => {
-                if (!isTouching) return;
-                isTouching = false;
-                joystickVector.x = 0;
-                joystickVector.y = 0;
-                knob.style.transform = `translate(0px, 0px)`;
-            });
-
-            function updateJoystickPosition(e) {
-                const rect = zone.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-
-                const dx = e.clientX - centerX;
-                const dy = e.clientY - centerY;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                let angle = Math.atan2(dy, dx);
-                let clampedDist = Math.min(distance, maxRadius);
-
-                let moveX = Math.cos(angle) * clampedDist;
-                let moveY = Math.sin(angle) * clampedDist;
-
-                knob.style.transform = `translate(${moveX}px, ${moveY}px)`;
-                joystickVector.x = moveX / maxRadius;
-                joystickVector.y = moveY / maxRadius;
-            }
-        }
-
-        function updateAvatarShirtColor() {
-            if (!avatarGroup) return;
-            const newShirtMat = new THREE.MeshStandardMaterial({ color: activePlayerColor });
-            avatarGroup.children.forEach(child => {
-                if (child === leftArm || child === rightArm || (child.geometry.type === 'BoxGeometry' && child.position.y === 1.25)) {
-                    child.material = newShirtMat;
-                }
-            });
-        }
-
-        function createNpcInScene() {
-            if (currentNpcMesh) playScene.remove(currentNpcMesh);
-
-            currentNpcMesh = new THREE.Group();
-            const npcBody = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.9, 0.4), new THREE.MeshStandardMaterial({ color: activeNpcConfig.color }));
-            npcBody.position.y = 1.25;
-            currentNpcMesh.add(npcBody);
-
-            const npcHead = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), new THREE.MeshStandardMaterial({ color: 0xfacc15 }));
-            npcHead.position.y = 1.9;
-            currentNpcMesh.add(npcHead);
-
-            currentNpcMesh.position.set(activeNpcConfig.x, activeNpcConfig.y, activeNpcConfig.z);
-            playScene.add(currentNpcMesh);
-        }
-
-        function updateNpcInScene() {
-            createNpcInScene();
-        }
-
-        function createAvatar() {
-            avatarGroup = new THREE.Group();
-            const skinMat = new THREE.MeshStandardMaterial({ color: 0xfacc15 }); 
-            const shirtMat = new THREE.MeshStandardMaterial({ color: activePlayerColor }); 
-            const pantsMat = new THREE.MeshStandardMaterial({ color: 0x334155 }); 
-
-            const head = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), skinMat);
-            head.position.y = 1.9;
-            avatarGroup.add(head);
-
-            const torso = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.9, 0.4), shirtMat);
-            torso.position.y = 1.25;
-            avatarGroup.add(torso);
-
-            leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.8, 0.3), shirtMat);
-            leftArm.position.set(-0.55, 1.25, 0);
-            avatarGroup.add(leftArm);
-
-            rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.8, 0.3), shirtMat);
-            rightArm.position.set(0.55, 1.25, 0);
-            avatarGroup.add(rightArm);
-
-            leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.8, 0.35), pantsMat);
-            leftLeg.geometry.translate(0, -0.4, 0);
-            leftLeg.position.set(-0.2, 0.8, 0);
-            avatarGroup.add(leftLeg);
-
-            rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.8, 0.35), pantsMat);
-            rightLeg.geometry.translate(0, -0.4, 0);
-            rightLeg.position.set(0.2, 0.8, 0);
-            avatarGroup.add(rightLeg);
-
-            playScene.add(avatarGroup);
-        }
-
-        function triggerShatterAndRespawn() {
-            isShattered = true;
-            playScene.remove(avatarGroup);
-            shatterPieces = [];
-
-            const parts = [
-                { geo: new THREE.BoxGeometry(0.6, 0.6, 0.6), mat: new THREE.MeshStandardMaterial({ color: 0xfacc15 }) },
-                { geo: new THREE.BoxGeometry(0.8, 0.9, 0.4), mat: new THREE.MeshStandardMaterial({ color: activePlayerColor }) },
-                { geo: new THREE.BoxGeometry(0.25, 0.8, 0.3), mat: new THREE.MeshStandardMaterial({ color: activePlayerColor }) },
-                { geo: new THREE.BoxGeometry(0.25, 0.8, 0.3), mat: new THREE.MeshStandardMaterial({ color: activePlayerColor }) },
-                { geo: new THREE.BoxGeometry(0.35, 0.8, 0.35), mat: new THREE.MeshStandardMaterial({ color: 0x334155 }) },
-                { geo: new THREE.BoxGeometry(0.35, 0.8, 0.35), mat: new THREE.MeshStandardMaterial({ color: 0x334155 }) }
-            ];
-
-            parts.forEach((p) => {
-                const mesh = new THREE.Mesh(p.geo, p.mat);
-                mesh.position.copy(avatarGroup.position);
-                mesh.position.y += 1;
-                playScene.add(mesh);
-
-                const velocity = new THREE.Vector3(
-                    (Math.random() - 0.5) * 0.2,
-                    Math.random() * 0.15 + 0.05,
-                    (Math.random() - 0.5) * 0.2
-                );
-                const rotSpeed = new THREE.Vector3(
-                    Math.random() * 0.1,
-                    Math.random() * 0.1,
-                    Math.random() * 0.1
-                );
-
-                shatterPieces.push({ mesh, velocity, rotSpeed });
-            });
-        }
-
-        function resetAvatar() {
-            shatterPieces.forEach(p => playScene.remove(p.mesh));
-            shatterPieces = [];
-
-            if (avatarGroup) {
-                playScene.remove(avatarGroup);
-            }
-
-            createAvatar();
-            avatarGroup.position.set(0, 0, 0);
-            avatarGroup.rotation.set(0, 0, 0);
-
-            isFalling = false;
-            isShattered = false;
-            fallVelocity = 0;
-            respawnTimer = 0;
-        }
-
-        window.addEventListener('keydown', (e) => {
-            const k = e.key.toLowerCase();
-            if (k === 'w') keyStates.w = true;
-            if (k === 'a') keyStates.a = true;
-            if (k === 's') keyStates.s = true;
-            if (k === 'd') keyStates.d = true;
-        });
-
-        window.addEventListener('keyup', (e) => {
-            const k = e.key.toLowerCase();
-            if (k === 'w') keyStates.w = false;
-            if (k === 'a') keyStates.a = false;
-            if (k === 's') keyStates.s = false;
-            if (k === 'd') keyStates.d = false;
-        });
-
-        function publishGameToCloud() {
-            collectStudioData();
-            const title = document.getElementById('game-title-input').value || "未命名遊戲";
-
-            let games = JSON.parse(localStorage.getItem('yorker_cloud_games')) || [];
-            
-            let newGameObj = {
-                id: 'game_' + Date.now(),
-                title: title,
-                author: currentUser,
-                icon: '🎮',
-                iconType: customGameIconUrl ? 'image' : 'emoji',
-                iconData: customGameIconUrl,
-                playerColor: activePlayerColor,
-                npc: activeNpcConfig,
-                htmlCode: activeHtmlCode
-            };
-
-            games.unshift(newGameObj);
-            localStorage.setItem('yorker_cloud_games', JSON.stringify(games));
-
-            loadCloudLobbyGames();
-            alert('🎉 您的巨大地圖遊戲、NPC 對話與 HTML 程式碼已成功同步至雲端資料庫！');
-            switchView('lobby-view');
+            win.style.display = win.style.display === 'flex' ? 'none' : 'flex';
         }
     </script>
 </body>
