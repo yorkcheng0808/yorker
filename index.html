@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>yorker - Roblox 風格雲端 3D 遊戲平台 (敏捷視角與多元方塊形狀縮放版)</title>
+    <title>yorker - Roblox 風格雲端 3D 遊戲平台 (含掉落碎裂與重生點系統)</title>
     <!-- 引入 Three.js 及其控制器 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -344,9 +344,11 @@
             top: 15px;
             left: 15px;
             display: flex;
-            gap: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
             z-index: 5;
             pointer-events: auto;
+            max-width: 800px;
         }
 
         .editor-tips {
@@ -389,7 +391,7 @@
             color: #cbd5e1;
         }
 
-        /* 4. 遊戲畫面與搖桿、對話與 HTML 彈窗 */
+        /* 4. 遊戲畫面與搖桿、跳躍按鈕、對話 */
         #virtual-joystick-zone {
             position: absolute;
             bottom: 30px;
@@ -415,6 +417,49 @@
             border-radius: 50%;
             pointer-events: none;
             box-shadow: 0 0 10px rgba(0, 162, 255, 0.6);
+        }
+
+        /* 右下角跳躍按鈕 */
+        #jump-btn {
+            position: absolute;
+            bottom: 45px;
+            right: 45px;
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            z-index: 25;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+            cursor: pointer;
+        }
+
+        #jump-btn:active {
+            transform: scale(0.92);
+        }
+
+        /* 遊戲提示橫幅 */
+        #game-notice-banner {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            z-index: 35;
+            display: none;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.5);
+            animation: fadeInOut 1.5s ease;
         }
 
         /* NPC 對話泡泡框 */
@@ -484,7 +529,6 @@
             background: #ffffff;
         }
 
-        /* 浮動按鈕開啟 HTML 互動視窗 */
         #toggle-html-btn {
             position: absolute;
             top: 20px;
@@ -560,7 +604,7 @@
                     <input type="text" id="game-title-input" value="我的全新 3D 遊戲" style="width: 250px; padding: 8px 12px;">
                 </div>
                 <div class="mode-tabs">
-                    <button class="tab-btn active" onclick="switchStudioTab(0)">3D 巨大場地編輯</button>
+                    <button class="tab-btn active" onclick="switchStudioTab(0)">3D 巨大場地與元件編輯</button>
                     <button class="tab-btn" onclick="switchStudioTab(1)">NPC 對話與設定</button>
                     <button class="tab-btn" onclick="switchStudioTab(2)">HTML 程式碼運行</button>
                     <button class="tab-btn" onclick="switchStudioTab(3)">遊戲發布設定</button>
@@ -572,17 +616,24 @@
             </div>
 
             <div class="studio-workspace">
-                <!-- Panel 0: 3D 編輯器 -->
+                <!-- Panel 0: 3D 編輯器與元件庫 -->
                 <div class="workspace-panel active" style="padding: 0;">
                     <div class="editor-ui-overlay">
-                        <button class="btn-roblox-primary" style="padding: 8px 12px;" onclick="addStudioBlock()">+ 新增方塊</button>
-                        <button class="btn-roblox-secondary" style="padding: 8px 12px; margin: 0; background: #334155;" onclick="setStudioTool('translate')">📍 移動</button>
-                        <button class="btn-roblox-secondary" style="padding: 8px 12px; margin: 0; background: #334155;" onclick="setStudioTool('rotate')">🔄 旋轉</button>
-                        <button class="btn-roblox-secondary" style="padding: 8px 12px; margin: 0; background: #7c3aed;" onclick="setStudioTool('scale')">📏 拉長/壓扁</button>
-                        <button class="btn-roblox-secondary" style="padding: 8px 12px; margin: 0; background: #ef4444;" onclick="deleteSelectedStudioBlock()">🗑️ 刪除</button>
+                        <button class="btn-roblox-primary" style="padding: 7px 10px;" onclick="addStudioBlock('cube')">+ 方塊</button>
+                        <button class="btn-roblox-primary" style="padding: 7px 10px; background: #059669;" onclick="addStudioComponent('spawn')">🚩 重生點</button>
+                        <button class="btn-roblox-primary" style="padding: 7px 10px; background: #d97706;" onclick="addStudioComponent('checkpoint')">💾 儲存點</button>
+                        <button class="btn-roblox-primary" style="padding: 7px 10px; background: #10b981;" onclick="addStudioComponent('tree')">🌲 路樹</button>
+                        <button class="btn-roblox-primary" style="padding: 7px 10px; background: #6366f1;" onclick="addStudioComponent('house')">🏠 屋子</button>
+                        <button class="btn-roblox-primary" style="padding: 7px 10px; background: #ec4899;" onclick="addStudioComponent('npc')">🤖 NPC</button>
+                        <button class="btn-roblox-primary" style="padding: 7px 10px; background: #0284c7;" onclick="addStudioComponent('ramp')">📐 斜坡</button>
+                        
+                        <button class="btn-roblox-secondary" style="padding: 7px 10px; margin: 0; background: #334155;" onclick="setStudioTool('translate')">📍 移動</button>
+                        <button class="btn-roblox-secondary" style="padding: 7px 10px; margin: 0; background: #334155;" onclick="setStudioTool('rotate')">🔄 旋轉</button>
+                        <button class="btn-roblox-secondary" style="padding: 7px 10px; margin: 0; background: #7c3aed;" onclick="setStudioTool('scale')">📏 縮放</button>
+                        <button class="btn-roblox-secondary" style="padding: 7px 10px; margin: 0; background: #ef4444;" onclick="deleteSelectedStudioBlock()">🗑️ 刪除</button>
                     </div>
                     <div class="editor-tips">
-                        💡 <b>敏捷編輯</b>：點擊方塊後可透過上方按鈕切換 <b>移動</b>、<b>旋轉</b> 或 <b>拉長/壓扁</b> 打造多元形狀！
+                        💡 <b>全新功能</b>：走到無地板的地方會自動掉落碎裂並返回最近的儲存點或重生點！
                     </div>
                     <div class="three-canvas-container" id="studio-canvas-container"></div>
                 </div>
@@ -597,7 +648,7 @@
                         </div>
                         <div class="form-row">
                             <label>NPC 對話內容 (當玩家靠近時顯示)</label>
-                            <textarea id="editor-npc-dialogue" rows="4">你好，冒險者！快來看看我用長條方塊和扁平地板建造的世界吧！</textarea>
+                            <textarea id="editor-npc-dialogue" rows="4">小心別掉進無底深淵！觸碰儲存點可以記錄重生位置喔！</textarea>
                         </div>
                         <div class="form-row">
                             <label>NPC 位置座標 (X, Y, Z)</label>
@@ -651,9 +702,12 @@
             
             <div class="three-canvas-container" id="play-canvas-container">
                 <div class="editor-tips" style="bottom: 15px; left: 15px; z-index: 25;">
-                    🎮 <b>敏捷操作</b>：左下角圓形搖桿移動 | <b>滑鼠右鍵或單指拖移</b>旋轉視角 | 靠近 NPC 自動觸發對話
+                    🎮 <b>操作說明</b>：左下角搖桿移動 | 右下角按鈕跳躍 | 碰到儲存點可更新重生點！
                 </div>
             </div>
+
+            <!-- 掉落重生提示橫幅 -->
+            <div id="game-notice-banner">💥 角色掉落碎裂！已返回最近的重生/儲存點！</div>
 
             <!-- 開啟內嵌 HTML 網頁按鈕 -->
             <button id="toggle-html-btn" onclick="toggleEmbeddedHtmlWindow()">🌐 開啟 HTML 互動面板</button>
@@ -672,6 +726,9 @@
                 <div id="virtual-joystick-knob"></div>
             </div>
 
+            <!-- 右下角跳躍按鈕 -->
+            <button id="jump-btn" onclick="triggerPlayerJump()">🚀 跳躍</button>
+
             <!-- NPC 對話泡泡框 -->
             <div id="dialogue-box">
                 <div id="dialogue-npc-name">NPC 名稱</div>
@@ -684,7 +741,6 @@
 
     <script>
         let currentUser = null;
-        let customPlayerColor = 0x00a2ff;
         let customGameIconUrl = null;
         let activeNpcConfig = { name: "守衛機器人", dialogue: "你好，冒險者！", x: 4, y: 0, z: -4, color: 0xec4899 };
         let activeHtmlCode = "";
@@ -695,14 +751,17 @@
                 const defaultGames = [
                     {
                         id: 'game_official_1',
-                        title: '方塊人大冒險 (多元形狀展示)',
+                        title: '冒險島嶼 (含重生點、儲存點與斜坡)',
                         author: 'yorker官方',
-                        icon: '🤖',
-                        npc: { name: "官方導覽員", dialogue: "歡迎來到 yorker！這裡的長條牆壁和高聳柱子都是用拉長與縮放功能建造的喔！", x: 5, y: 0, z: -5, color: 0x3b82f6 },
+                        icon: '🏰',
+                        npc: { name: "官方導覽員", dialogue: "歡迎來到 yorker！記得踩過儲存點，掉下去會回到最後儲存的位置喔！", x: 5, y: 0, z: -5, color: 0x3b82f6 },
                         htmlCode: '<div style="padding:20px; font-family:sans-serif; text-align:center;"><h2 style="color:#00a2ff;">官方小工具</h2><p>這是預設遊戲內的 HTML 互動網頁！</p></div>',
                         blocks: [
-                            { position: {x: 5, y: 2, z: 0}, rotation: {x:0, y:0, z:0}, scale: {x: 1, y: 6, z: 5}, color: 0x3b82f6 },
-                            { position: {x: -5, y: 0.5, z: -5}, rotation: {x:0, y:0, z:0}, scale: {x: 8, y: 0.5, z: 2}, color: 0x10b981 }
+                            { type: 'spawn', position: {x: 0, y: 0.5, z: 0}, rotation: {x:0, y:0, z:0}, scale: {x: 4, y: 1, z: 4}, color: 0x10b981 },
+                            { type: 'checkpoint', position: {x: 10, y: 0.5, z: 0}, rotation: {x:0, y:0, z:0}, scale: {x: 3, y: 1, z: 3}, color: 0xd97706 },
+                            { type: 'house', position: {x: -12, y: 2, z: -10}, rotation: {x:0, y:0, z:0}, scale: {x: 6, y: 4, z: 6}, color: 0x6366f1 },
+                            { type: 'ramp', position: {x: 0, y: 1, z: -10}, rotation: {x:0.5, y:0, z:0}, scale: {x: 4, y: 1, z: 6}, color: 0x0284c7 },
+                            { type: 'tree', position: {x: 10, y: 3, z: 10}, rotation: {x:0, y:0, z:0}, scale: {x: 3, y: 6, z: 3}, color: 0x10b981 }
                         ]
                     }
                 ];
@@ -785,14 +844,17 @@
             document.getElementById(viewId).classList.add('active');
             
             const joystickZone = document.getElementById('virtual-joystick-zone');
+            const jumpBtn = document.getElementById('jump-btn');
             const htmlBtn = document.getElementById('toggle-html-btn');
             const htmlWindow = document.getElementById('embedded-html-container');
 
             if (viewId === 'play-view') {
                 joystickZone.style.display = 'block';
+                jumpBtn.style.display = 'flex';
                 htmlBtn.style.display = 'block';
             } else {
                 joystickZone.style.display = 'none';
+                jumpBtn.style.display = 'none';
                 htmlBtn.style.display = 'none';
                 htmlWindow.style.display = 'none';
                 stopGamePlayLoop();
@@ -802,7 +864,7 @@
         }
 
         function openStudio() {
-            document.getElementById('game-title-input').value = currentUser + " 的多元 3D 世界";
+            document.getElementById('game-title-input').value = currentUser + " 的精緻 3D 世界";
             switchView('studio-view');
             initStudio3D();
         }
@@ -875,7 +937,7 @@
             container.appendChild(studioRenderer.domElement);
 
             studioControls = new THREE.OrbitControls(studioCamera, studioRenderer.domElement);
-            studioControls.rotateSpeed = 1.2; // 提升工作室視角旋轉敏捷度
+            studioControls.rotateSpeed = 1.2;
             studioControls.mouseButtons = { LEFT: THREE.MOUSE.NONE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
             studioControls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
 
@@ -888,15 +950,15 @@
             dirLight.position.set(20, 40, 20);
             studioScene.add(dirLight);
 
-            // 建立初始地板
-            const planeGeo = new THREE.BoxGeometry(60, 1, 60);
+            // 地板
+            const planeGeo = new THREE.BoxGeometry(80, 1, 80);
             const planeMat = new THREE.MeshStandardMaterial({ color: 0x1e293b });
             const plane = new THREE.Mesh(planeGeo, planeMat);
             plane.position.y = -1;
+            plane.userData = { type: 'ground' };
             studioScene.add(plane);
             studioBlocks.push(plane);
 
-            // 點擊選取方塊
             const raycaster = new THREE.Raycaster();
             const mouse = new THREE.Vector2();
 
@@ -927,11 +989,43 @@
             });
         }
 
-        function addStudioBlock() {
+        function addStudioBlock(type = 'cube') {
             const geo = new THREE.BoxGeometry(4, 4, 4);
             const mat = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
             const mesh = new THREE.Mesh(geo, mat);
             mesh.position.set(0, 2, 0);
+            mesh.userData = { type: 'cube' };
+            studioScene.add(mesh);
+            studioBlocks.push(mesh);
+            studioTransformControls.attach(mesh);
+        }
+
+        function addStudioComponent(compType) {
+            let geo, mat, mesh;
+            if (compType === 'spawn') {
+                geo = new THREE.BoxGeometry(4, 0.6, 4);
+                mat = new THREE.MeshStandardMaterial({ color: 0x10b981 });
+            } else if (compType === 'checkpoint') {
+                geo = new THREE.BoxGeometry(3, 0.6, 3);
+                mat = new THREE.MeshStandardMaterial({ color: 0xd97706 });
+            } else if (compType === 'tree') {
+                geo = new THREE.CylinderGeometry(1, 1.5, 5, 8);
+                mat = new THREE.MeshStandardMaterial({ color: 0x10b981 });
+            } else if (compType === 'house') {
+                geo = new THREE.BoxGeometry(6, 4, 6);
+                mat = new THREE.MeshStandardMaterial({ color: 0x6366f1 });
+            } else if (compType === 'npc') {
+                geo = new THREE.BoxGeometry(2, 3, 1);
+                mat = new THREE.MeshStandardMaterial({ color: 0xec4899 });
+            } else if (compType === 'ramp') {
+                geo = new THREE.BoxGeometry(4, 1, 6);
+                mat = new THREE.MeshStandardMaterial({ color: 0x0284c7 });
+            }
+
+            mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set(0, 2, 0);
+            if (compType === 'ramp') mesh.rotation.x = 0.4;
+            mesh.userData = { type: compType };
             studioScene.add(mesh);
             studioBlocks.push(mesh);
             studioTransformControls.attach(mesh);
@@ -961,8 +1055,8 @@
             };
             activeHtmlCode = document.getElementById('editor-html-code').value;
 
-            // 序列化所有自定義方塊（位置、旋轉、縮放與顏色）
             serializedBlocks = studioBlocks.slice(1).map(b => ({
+                type: b.userData.type || 'cube',
                 position: { x: b.position.x, y: b.position.y, z: b.position.z },
                 rotation: { x: b.rotation.x, y: b.rotation.y, z: b.rotation.z },
                 scale: { x: b.scale.x, y: b.scale.y, z: b.scale.z },
@@ -1006,12 +1100,21 @@
             playGameObj(previewObj);
         }
 
-        // --- 遊戲遊玩邏輯 ---
+        // --- 遊戲遊玩邏輯與精緻 3D 動畫角色、碰撞檢測、掉落重生 ---
         let playScene, playCamera, playRenderer, playAnimationId;
-        let playerMesh, npcMesh;
+        let playerGroup; // 精緻 3D 角色群組
+        let playerParts = {}; // 用於執行動畫的身體部件
+        let npcMesh;
         let joystickVector = { x: 0, y: 0 };
         let isJoystickActive = false;
         let activeGameData = null;
+        let collisionObjects = [];
+        let checkpointObjects = [];
+        let playerVelocityY = 0;
+        let isGrounded = false;
+        let spawnPosition = { x: 0, y: 1.5, z: 0 };
+        let currentRespawnPosition = { x: 0, y: 1.5, z: 0 };
+        let keysPressed = { w: false, a: false, s: false, d: false, space: false };
 
         function playGameObj(gameObj) {
             activeGameData = gameObj;
@@ -1021,11 +1124,53 @@
             initPlay3D(gameObj);
         }
 
+        function createDetailedPlayer() {
+            const group = new THREE.Group();
+            const skinMat = new THREE.MeshStandardMaterial({ color: 0xfde047 });
+            const shirtMat = new THREE.MeshStandardMaterial({ color: 0x00a2ff });
+            const pantsMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a });
+
+            // 頭部
+            const headGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+            const head = new THREE.Mesh(headGeo, skinMat);
+            head.position.y = 2.4;
+            group.add(head);
+
+            // 軀幹
+            const torsoGeo = new THREE.BoxGeometry(1.2, 1.4, 0.6);
+            const torso = new THREE.Mesh(torsoGeo, shirtMat);
+            torso.position.y = 1.4;
+            group.add(torso);
+
+            // 雙手
+            const armGeo = new THREE.BoxGeometry(0.4, 1.2, 0.4);
+            const leftArm = new THREE.Mesh(armGeo, skinMat);
+            leftArm.position.set(-0.9, 1.4, 0);
+            group.add(leftArm);
+
+            const rightArm = new THREE.Mesh(armGeo, skinMat);
+            rightArm.position.set(0.9, 1.4, 0);
+            group.add(rightArm);
+
+            // 雙腳
+            const legGeo = new THREE.BoxGeometry(0.5, 1.2, 0.5);
+            const leftLeg = new THREE.Mesh(legGeo, pantsMat);
+            leftLeg.position.set(-0.35, 0.6, 0);
+            group.add(leftLeg);
+
+            const rightLeg = new THREE.Mesh(legGeo, pantsMat);
+            rightLeg.position.set(0.35, 0.6, 0);
+            group.add(rightLeg);
+
+            playerParts = { leftArm, rightArm, leftLeg, rightLeg, head };
+            return group;
+        }
+
         function initPlay3D(gameObj) {
             const container = document.getElementById('play-canvas-container');
             container.innerHTML = `
                 <div class="editor-tips" style="bottom: 15px; left: 15px; z-index: 25;">
-                    🎮 <b>敏捷操作</b>：左下角圓形搖桿移動 | <b>滑鼠右鍵或單指拖移</b>旋轉視角 | 靠近 NPC 自動觸發對話
+                    🎮 <b>操作說明</b>：左下角搖桿 (或 WASD) 移動 | 右下角按鈕 (或空白鍵) 跳躍 | 碰觸儲存點更新重生點
                 </div>
             `;
 
@@ -1043,45 +1188,49 @@
             dirLight.position.set(20, 40, 20);
             playScene.add(dirLight);
 
+            collisionObjects = [];
+            checkpointObjects = [];
+            spawnPosition = { x: 0, y: 1.5, z: 0 };
+            currentRespawnPosition = { x: 0, y: 1.5, z: 0 };
+
             // 地板
-            const planeGeo = new THREE.BoxGeometry(80, 1, 80);
+            const planeGeo = new THREE.BoxGeometry(100, 1, 100);
             const planeMat = new THREE.MeshStandardMaterial({ color: 0x1e293b });
             const plane = new THREE.Mesh(planeGeo, planeMat);
-            plane.position.y = -1;
+            plane.position.y = -0.5;
             playScene.add(plane);
+            collisionObjects.push(plane);
 
-            // 載入自定義方塊（支援拉長、壓扁、旋轉、各種尺寸與顏色）
+            // 載入自定義方塊與元件
             if (gameObj.blocks && gameObj.blocks.length > 0) {
                 gameObj.blocks.forEach(bData => {
-                    const bGeo = new THREE.BoxGeometry(4, 4, 4);
+                    let bGeo;
+                    if (bData.type === 'tree') bGeo = new THREE.CylinderGeometry(1, 1.5, 5, 8);
+                    else if (bData.type === 'ramp') bGeo = new THREE.BoxGeometry(4, 1, 6);
+                    else bGeo = new THREE.BoxGeometry(4, 4, 4);
+
                     const bMat = new THREE.MeshStandardMaterial({ color: bData.color });
                     const b = new THREE.Mesh(bGeo, bMat);
                     b.position.set(bData.position.x, bData.position.y, bData.position.z);
                     b.rotation.set(bData.rotation.x, bData.rotation.y, bData.rotation.z);
                     b.scale.set(bData.scale.x, bData.scale.y, bData.scale.z);
                     playScene.add(b);
-                });
-            } else {
-                // 預設裝飾方塊
-                for(let i = -30; i <= 30; i += 10) {
-                    for(let j = -30; j <= 30; j += 10) {
-                        if (Math.abs(i) > 5 || Math.abs(j) > 5) {
-                            const bGeo = new THREE.BoxGeometry(4, Math.random() * 6 + 2, 4);
-                            const bMat = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
-                            const b = new THREE.Mesh(bGeo, bMat);
-                            b.position.set(i, b.geometry.parameters.height/2 - 1, j);
-                            playScene.add(b);
-                        }
+                    collisionObjects.push(b);
+
+                    if (bData.type === 'spawn') {
+                        spawnPosition = { x: bData.position.x, y: bData.position.y + 1.5, z: bData.position.z };
+                        currentRespawnPosition = { ...spawnPosition };
                     }
-                }
+                    if (bData.type === 'checkpoint') {
+                        checkpointObjects.push(b);
+                    }
+                });
             }
 
-            // 玩家角色
-            const playerGeo = new THREE.BoxGeometry(2, 3, 1);
-            const playerMat = new THREE.MeshStandardMaterial({ color: 0x00a2ff });
-            playerMesh = new THREE.Mesh(playerGeo, playerMat);
-            playerMesh.position.set(0, 1.5, 0);
-            playScene.add(playerMesh);
+            // 建立精緻 3D 玩家
+            playerGroup = createDetailedPlayer();
+            playerGroup.position.set(currentRespawnPosition.x, currentRespawnPosition.y, currentRespawnPosition.z);
+            playScene.add(playerGroup);
 
             // NPC 角色
             const npcConfig = gameObj.npc || { name: "守衛機器人", dialogue: "你好！", x: 4, y: 0, z: -4, color: 0xec4899 };
@@ -1091,8 +1240,8 @@
             npcMesh.position.set(npcConfig.x, 1.5, npcConfig.z);
             playScene.add(npcMesh);
 
-            // 虛擬搖桿互動
             setupVirtualJoystick();
+            setupKeyboardControls();
 
             let cameraAngle = 0;
             isDraggingCamera = false;
@@ -1108,7 +1257,7 @@
             window.addEventListener('pointermove', (e) => {
                 if (!isDraggingCamera) return;
                 const deltaX = e.clientX - previousMousePosition.x;
-                cameraAngle -= deltaX * 0.016; // 提高靈敏度倍率，讓視角旋轉更加敏捷流暢
+                cameraAngle -= deltaX * 0.016;
                 previousMousePosition = { x: e.clientX, y: e.clientY };
             });
 
@@ -1116,31 +1265,118 @@
             container.addEventListener('contextmenu', e => e.preventDefault());
 
             let dialogueShown = false;
+            let animTimer = 0;
 
             function animatePlay() {
                 playAnimationId = requestAnimationFrame(animatePlay);
 
-                // 移動玩家
-                if (joystickVector.x !== 0 || joystickVector.y !== 0) {
-                    const speed = 0.15;
-                    const moveX = (joystickVector.x * Math.cos(cameraAngle) - joystickVector.y * Math.sin(cameraAngle)) * speed;
-                    const moveZ = (joystickVector.x * Math.sin(cameraAngle) + joystickVector.y * Math.cos(cameraAngle)) * speed;
+                // 鍵盤移動向量整合
+                let moveX = joystickVector.x;
+                let moveZ = joystickVector.y;
+                if (keysPressed.w) moveZ = -1;
+                if (keysPressed.s) moveZ = 1;
+                if (keysPressed.a) moveX = -1;
+                if (keysPressed.d) moveX = 1;
+
+                if (keysPressed.space && isGrounded) {
+                    triggerPlayerJump();
+                }
+
+                // 套用重力與跳躍物理
+                playerVelocityY -= 0.015;
+                playerGroup.position.y += playerVelocityY;
+
+                // 掉落深淵判定 (高度低於 -10 則觸發碎裂重生)
+                if (playerGroup.position.y < -10) {
+                    respawnPlayer();
+                }
+
+                // 碰撞偵測與地面停留
+                isGrounded = false;
+                for (let obj of collisionObjects) {
+                    const box = new THREE.Box3().setFromObject(obj);
+                    const pPos = playerGroup.position;
+                    if (pPos.x >= box.min.x - 1 && pPos.x <= box.max.x + 1 &&
+                        pPos.z >= box.min.z - 1 && pPos.z <= box.max.z + 1) {
+                        if (pPos.y >= box.max.y - 0.3 && pPos.y <= box.max.y + 1.0 && playerVelocityY <= 0) {
+                            playerGroup.position.y = box.max.y;
+                            playerVelocityY = 0;
+                            isGrounded = true;
+                        }
+                    }
+                }
+
+                // 檢查是否觸碰儲存點
+                for (let cp of checkpointObjects) {
+                    const cpBox = new THREE.Box3().setFromObject(cp);
+                    const pPos = playerGroup.position;
+                    if (pPos.x >= cpBox.min.x && pPos.x <= cpBox.max.x &&
+                        pPos.z >= cpBox.min.z && pPos.z <= cpBox.max.z &&
+                        Math.abs(pPos.y - cpBox.max.y) < 1.0) {
+                        currentRespawnPosition = { x: cp.position.x, y: cp.position.y + 1.5, z: cp.position.z };
+                        cp.material.color.setHex(0x22c55e); // 觸碰後變綠色代表已儲存
+                    }
+                }
+
+                // 水平移動與碰撞阻擋
+                if (moveX !== 0 || moveZ !== 0) {
+                    const speed = 0.14;
+                    const deltaX = (moveX * Math.cos(cameraAngle) - moveZ * Math.sin(cameraAngle)) * speed;
+                    const deltaZ = (moveX * Math.sin(cameraAngle) + moveZ * Math.cos(cameraAngle)) * speed;
                     
-                    playerMesh.position.x += moveX;
-                    playerMesh.position.z += moveZ;
-                    playerMesh.rotation.y = Math.atan2(moveX, moveZ);
+                    let nextX = playerGroup.position.x + deltaX;
+                    let nextZ = playerGroup.position.z + deltaZ;
+
+                    let canMove = true;
+                    for (let obj of collisionObjects) {
+                        if (obj.geometry.type === 'BoxGeometry' && obj.position.y > -0.5) {
+                            const bBox = new THREE.Box3().setFromObject(obj);
+                            if (nextX >= bBox.min.x - 0.8 && nextX <= bBox.max.x + 0.8 &&
+                                nextZ >= bBox.min.z - 0.8 && nextZ <= bBox.max.z + 0.8 &&
+                                playerGroup.position.y < bBox.max.y && playerGroup.position.y + 2.8 > bBox.min.y) {
+                                canMove = false;
+                            }
+                        }
+                    }
+
+                    if (canMove) {
+                        playerGroup.position.x = nextX;
+                        playerGroup.position.z = nextZ;
+                    }
+                    playerGroup.rotation.y = Math.atan2(deltaX, deltaZ);
+
+                    // 走路 3D 動畫
+                    animTimer += 0.2;
+                    playerParts.leftLeg.rotation.x = Math.sin(animTimer) * 0.6;
+                    playerParts.rightLeg.rotation.x = -Math.sin(animTimer) * 0.6;
+                    playerParts.leftArm.rotation.x = -Math.sin(animTimer) * 0.6;
+                    playerParts.rightArm.rotation.x = Math.sin(animTimer) * 0.6;
+                } else {
+                    playerParts.leftLeg.rotation.x = 0;
+                    playerParts.rightLeg.rotation.x = 0;
+                    playerParts.leftArm.rotation.x = 0;
+                    playerParts.rightArm.rotation.x = 0;
+                }
+
+                // 跳躍動畫姿勢
+                if (!isGrounded) {
+                    playerParts.leftArm.rotation.z = -0.5;
+                    playerParts.rightArm.rotation.z = 0.5;
+                } else {
+                    playerParts.leftArm.rotation.z = 0;
+                    playerParts.rightArm.rotation.z = 0;
                 }
 
                 // 相機跟隨玩家
                 const camDist = 12;
                 const camHeight = 7;
-                playCamera.position.x = playerMesh.position.x - Math.sin(cameraAngle) * camDist;
-                playCamera.position.z = playerMesh.position.z - Math.cos(cameraAngle) * camDist;
-                playCamera.position.y = playerMesh.position.y + camHeight;
-                playCamera.lookAt(playerMesh.position.x, playerMesh.position.y + 1, playerMesh.position.z);
+                playCamera.position.x = playerGroup.position.x - Math.sin(cameraAngle) * camDist;
+                playCamera.position.z = playerGroup.position.z - Math.cos(cameraAngle) * camDist;
+                playCamera.position.y = playerGroup.position.y + camHeight;
+                playCamera.lookAt(playerGroup.position.x, playerGroup.position.y + 1.5, playerGroup.position.z);
 
                 // 檢查與 NPC 距離
-                const distToNpc = playerMesh.position.distanceTo(npcMesh.position);
+                const distToNpc = playerGroup.position.distanceTo(npcMesh.position);
                 if (distToNpc < 4) {
                     if (!dialogueShown) {
                         showDialogue(npcConfig.name, npcConfig.dialogue);
@@ -1160,11 +1396,47 @@
 
         let isDraggingCamera = false;
 
+        function respawnPlayer() {
+            playerGroup.position.set(currentRespawnPosition.x, currentRespawnPosition.y, currentRespawnPosition.z);
+            playerVelocityY = 0;
+
+            // 顯示碎裂重生通知
+            const banner = document.getElementById('game-notice-banner');
+            banner.style.display = 'block';
+            setTimeout(() => {
+                banner.style.display = 'none';
+            }, 1800);
+        }
+
         function stopGamePlayLoop() {
             if (playAnimationId) {
                 cancelAnimationFrame(playAnimationId);
                 playAnimationId = null;
             }
+        }
+
+        function triggerPlayerJump() {
+            if (isGrounded) {
+                playerVelocityY = 0.35;
+                isGrounded = false;
+            }
+        }
+
+        function setupKeyboardControls() {
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'w' || e.key === 'W') keysPressed.w = true;
+                if (e.key === 's' || e.key === 'S') keysPressed.s = true;
+                if (e.key === 'a' || e.key === 'A') keysPressed.a = true;
+                if (e.key === 'd' || e.key === 'D') keysPressed.d = true;
+                if (e.key === ' ') keysPressed.space = true;
+            });
+            window.addEventListener('keyup', (e) => {
+                if (e.key === 'w' || e.key === 'W') keysPressed.w = false;
+                if (e.key === 's' || e.key === 'S') keysPressed.s = false;
+                if (e.key === 'a' || e.key === 'A') keysPressed.a = false;
+                if (e.key === 'd' || e.key === 'D') keysPressed.d = false;
+                if (e.key === ' ') keysPressed.space = false;
+            });
         }
 
         function setupVirtualJoystick() {
