@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>yorker - Roblox 風格雲端 3D 遊戲平台 (觸控搖桿優化版)</title>
+    <title>yorker - Roblox 風格雲端 3D 遊戲平台 (巨大地圖、NPC對話與HTML運行版)</title>
     <!-- 引入 Three.js 及其控制器 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -18,7 +18,6 @@
             -webkit-user-select: none;
         }
 
-
         body {
             background-color: #0f172a;
             color: #ffffff;
@@ -30,8 +29,6 @@
             touch-action: none;
         }
 
-
-        /* 16:9 比例的外框容器 */
         #app-container {
             width: 100vw;
             height: 56.25vw;
@@ -44,7 +41,6 @@
             display: flex;
             flex-direction: column;
         }
-
 
         .view {
             position: absolute;
@@ -59,11 +55,9 @@
             background: #0f172a;
         }
 
-
         .view.active {
             display: flex;
         }
-
 
         button {
             cursor: pointer;
@@ -73,12 +67,10 @@
             transition: 0.2s;
         }
 
-
         button:hover {
             transform: translateY(-2px);
             opacity: 0.95;
         }
-
 
         input, textarea, select {
             background: #334155;
@@ -90,14 +82,12 @@
             outline: none;
         }
 
-
         input:focus, textarea:focus, select:focus {
             border-color: #00a2ff;
             box-shadow: 0 0 8px rgba(0, 162, 255, 0.4);
         }
 
-
-        /* 1. Roblox 風格登入 / 註冊頁面 */
+        /* 1. 登入畫面 */
         #auth-view {
             justify-content: center;
             align-items: center;
@@ -106,7 +96,6 @@
             overflow: hidden;
             position: relative;
         }
-
 
         .roblox-bg-grid {
             position: absolute;
@@ -124,7 +113,6 @@
             z-index: 1;
         }
 
-
         .bg-game-card {
             background: #1e293b;
             border: 2px solid #475569;
@@ -136,7 +124,6 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
 
-
         .bg-card-thumb {
             height: 140px;
             background: linear-gradient(135deg, #00a2ff, #7c3aed);
@@ -146,7 +133,6 @@
             font-size: 3rem;
         }
 
-
         .bg-card-title {
             padding: 12px;
             font-weight: bold;
@@ -154,7 +140,6 @@
             text-align: left;
             color: #cbd5e1;
         }
-
 
         .auth-box {
             background: rgba(30, 41, 59, 0.92);
@@ -167,7 +152,6 @@
             z-index: 10;
         }
 
-
         .logo-text {
             font-size: 3.2rem;
             font-weight: 900;
@@ -177,14 +161,12 @@
             margin-bottom: 5px;
         }
 
-
         .auth-inputs {
             display: flex;
             flex-direction: column;
             gap: 15px;
             margin: 25px 0;
         }
-
 
         .btn-roblox-primary {
             background: #00a2ff;
@@ -195,7 +177,6 @@
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0, 162, 255, 0.4);
         }
-
 
         .btn-roblox-secondary {
             background: #334155;
@@ -208,7 +189,6 @@
             border-radius: 10px;
         }
 
-
         .auth-error {
             color: #f87171;
             font-size: 0.85rem;
@@ -217,8 +197,7 @@
             display: none;
         }
 
-
-        /* 2. 主頁面 (大廳) */
+        /* 2. 大廳 */
         header {
             display: flex;
             justify-content: space-between;
@@ -227,13 +206,11 @@
             padding-bottom: 20px;
         }
 
-
         .user-info {
             display: flex;
             align-items: center;
             gap: 15px;
         }
-
 
         .game-grid {
             display: grid;
@@ -245,7 +222,6 @@
             padding-right: 5px;
         }
 
-
         .game-card {
             background: #1e293b;
             border-radius: 14px;
@@ -256,13 +232,11 @@
             transition: 0.2s;
         }
 
-
         .game-card:hover {
             border-color: #00a2ff;
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0, 162, 255, 0.2);
         }
-
 
         .game-thumbnail {
             height: 130px;
@@ -275,13 +249,11 @@
             position: relative;
         }
 
-
         .game-thumbnail img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-
 
         .game-details {
             padding: 15px;
@@ -291,24 +263,20 @@
             flex-grow: 1;
         }
 
-
         .game-title {
             font-size: 1.1rem;
             font-weight: bold;
         }
-
 
         .game-author {
             font-size: 0.85rem;
             color: #94a3b8;
         }
 
-
-        /* 3. 創作工作室 */
+        /* 3. 工作室 */
         #studio-view {
             padding: 30px;
         }
-
 
         .studio-header {
             display: flex;
@@ -317,26 +285,23 @@
             margin-bottom: 15px;
         }
 
-
         .mode-tabs {
             display: flex;
             gap: 10px;
         }
 
-
         .tab-btn {
             background: #1e293b;
             color: #94a3b8;
-            padding: 10px 20px;
+            padding: 10px 18px;
             border-radius: 8px;
+            font-size: 0.9rem;
         }
-
 
         .tab-btn.active {
             background: #00a2ff;
             color: white;
         }
-
 
         .studio-workspace {
             flex-grow: 1;
@@ -347,7 +312,6 @@
             overflow: hidden;
             display: flex;
         }
-
 
         .workspace-panel {
             position: absolute;
@@ -361,11 +325,9 @@
             overflow-y: auto;
         }
 
-
         .workspace-panel.active {
             display: flex;
         }
-
 
         .three-canvas-container {
             flex-grow: 1;
@@ -377,7 +339,6 @@
             overflow: hidden;
         }
 
-
         .editor-ui-overlay {
             position: absolute;
             top: 15px;
@@ -387,7 +348,6 @@
             z-index: 5;
             pointer-events: auto;
         }
-
 
         .editor-tips {
             position: absolute;
@@ -403,22 +363,19 @@
             z-index: 5;
         }
 
-
         .editor-form-group {
             background: #1e293b;
             border: 1px solid #334155;
             padding: 20px;
             border-radius: 12px;
             margin-bottom: 20px;
-            max-width: 600px;
+            max-width: 650px;
         }
-
 
         .editor-form-group h3 {
             margin-bottom: 15px;
             color: #38bdf8;
         }
-
 
         .form-row {
             margin-bottom: 15px;
@@ -427,14 +384,12 @@
             gap: 6px;
         }
 
-
         .form-row label {
             font-size: 0.9rem;
             color: #cbd5e1;
         }
 
-
-        /* 4. 遊戲內虛擬搖桿 (左下角可滑動圓形) */
+        /* 4. 遊戲畫面與搖桿、對話與 HTML 彈窗 */
         #virtual-joystick-zone {
             position: absolute;
             bottom: 30px;
@@ -449,7 +404,6 @@
             touch-action: none;
         }
 
-
         #virtual-joystick-knob {
             position: absolute;
             top: 45px;
@@ -462,15 +416,94 @@
             pointer-events: none;
             box-shadow: 0 0 10px rgba(0, 162, 255, 0.6);
         }
+
+        /* NPC 對話泡泡框 */
+        #dialogue-box {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.95);
+            border: 2px solid #00a2ff;
+            padding: 20px 30px;
+            border-radius: 16px;
+            width: 550px;
+            max-width: 90vw;
+            box-shadow: 0 10px 30px rgba(0, 162, 255, 0.4);
+            z-index: 30;
+            display: none;
+        }
+
+        #dialogue-npc-name {
+            font-weight: bold;
+            color: #38bdf8;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        #dialogue-text {
+            color: #f8fafc;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        /* 內嵌 HTML 運行視窗容器 */
+        #embedded-html-container {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            width: 380px;
+            height: 450px;
+            background: #1e293b;
+            border: 2px solid #475569;
+            border-radius: 12px;
+            z-index: 25;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+            overflow: hidden;
+        }
+
+        .html-container-header {
+            background: #0f172a;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+            font-weight: bold;
+            color: #38bdf8;
+            font-size: 0.9rem;
+        }
+
+        #html-render-iframe {
+            flex-grow: 1;
+            width: 100%;
+            border: none;
+            background: #ffffff;
+        }
+
+        /* 浮動按鈕開啟 HTML 互動視窗 */
+        #toggle-html-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #7c3aed;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 8px;
+            z-index: 25;
+            display: none;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+        }
     </style>
 </head>
 <body>
 
-
     <div id="app-container">
 
-
-        <!-- 1. Roblox 風格登入 / 註冊視圖 -->
+        <!-- 1. 登入 / 註冊視圖 -->
         <div id="auth-view" class="view active">
             <div class="roblox-bg-grid">
                 <div class="bg-game-card"><div class="bg-card-thumb">🏰</div><div class="bg-card-title">皇家城堡大戰</div></div>
@@ -478,14 +511,12 @@
                 <div class="bg-game-card"><div class="bg-card-thumb" style="background:linear-gradient(135deg, #10b981, #06b6d4);">⚔️</div><div class="bg-card-title">地下城勇士傳說</div></div>
                 <div class="bg-game-card"><div class="bg-card-thumb" style="background:linear-gradient(135deg, #ec4899, #8b5cf6);">🧱</div><div class="bg-card-title">方塊生存大冒險</div></div>
                 <div class="bg-game-card"><div class="bg-card-thumb" style="background:linear-gradient(135deg, #6366f1, #3b82f6);">🚀</div><div class="bg-card-title">星際太空探索</div></div>
-                
                 <div class="bg-game-card"><div class="bg-card-thumb" style="background:linear-gradient(135deg, #f59e0b, #ef4444);">🔥</div><div class="bg-card-title">熔岩跳躍挑戰</div></div>
                 <div class="bg-game-card"><div class="bg-card-thumb">🏝️</div><div class="bg-card-title">熱帶海島建造</div></div>
                 <div class="bg-game-card"><div class="bg-card-thumb" style="background:linear-gradient(135deg, #06b6d4, #3b82f6);">🌊</div><div class="bg-card-title">深海潛水大搜查</div></div>
                 <div class="bg-game-card"><div class="bg-card-thumb" style="background:linear-gradient(135deg, #8b5cf6, #ec4899);">🤖</div><div class="bg-card-title">機器人守衛戰</div></div>
                 <div class="bg-game-card"><div class="bg-card-thumb" style="background:linear-gradient(135deg, #10b981, #3b82f6);">🌲</div><div class="bg-card-title">神祕森林探險</div></div>
             </div>
-
 
             <div class="auth-box">
                 <div class="logo-text">yorker</div>
@@ -500,8 +531,7 @@
             </div>
         </div>
 
-
-        <!-- 2. 主頁面 (大廳) -->
+        <!-- 2. 主頁面大廳 -->
         <div id="lobby-view" class="view">
             <header>
                 <div style="display: flex; align-items: center; gap: 15px;">
@@ -519,10 +549,8 @@
                 <h3 style="font-weight: 500; color: #cbd5e1;">雲端同步的熱門遊戲與創作者世界</h3>
             </div>
 
-
             <div class="game-grid" id="game-grid"></div>
         </div>
-
 
         <!-- 3. 創作工作室 -->
         <div id="studio-view" class="view">
@@ -532,9 +560,10 @@
                     <input type="text" id="game-title-input" value="我的全新 3D 遊戲" style="width: 250px; padding: 8px 12px;">
                 </div>
                 <div class="mode-tabs">
-                    <button class="tab-btn active" onclick="switchStudioTab(0)">3D 場地編輯</button>
-                    <button class="tab-btn" onclick="switchStudioTab(1)">角色與 NPC 編輯</button>
-                    <button class="tab-btn" onclick="switchStudioTab(2)">遊戲上傳設定</button>
+                    <button class="tab-btn active" onclick="switchStudioTab(0)">3D 巨大場地編輯</button>
+                    <button class="tab-btn" onclick="switchStudioTab(1)">NPC 對話與設定</button>
+                    <button class="tab-btn" onclick="switchStudioTab(2)">HTML 程式碼運行</button>
+                    <button class="tab-btn" onclick="switchStudioTab(3)">遊戲發布設定</button>
                 </div>
                 <div style="display: flex; gap: 10px;">
                     <button class="btn-roblox-primary" style="padding: 10px 15px; background: #0284c7;" onclick="previewGame()">👁️ 預覽遊戲</button>
@@ -542,52 +571,62 @@
                 </div>
             </div>
 
-
             <div class="studio-workspace">
+                <!-- Panel 0: 3D 編輯器 -->
                 <div class="workspace-panel active" style="padding: 0;">
                     <div class="editor-ui-overlay">
                         <button class="btn-roblox-primary" style="padding: 8px 15px;" onclick="addStudioBlock()">+ 新增 3D 方塊</button>
                         <button class="btn-roblox-secondary" style="padding: 8px 15px; margin: 0; background: #334155;" onclick="deleteSelectedStudioBlock()">刪除選取方塊</button>
                     </div>
                     <div class="editor-tips">
-                        💡 <b>編輯操作</b>：滑鼠右鍵或單指拖移旋轉視角 | 點擊方塊以移動/旋轉
+                        💡 <b>編輯操作</b>：滑鼠右鍵或單指拖移旋轉視角 (不自動彈回) | 點擊方塊以移動/旋轉
                     </div>
                     <div class="three-canvas-container" id="studio-canvas-container"></div>
                 </div>
 
-
+                <!-- Panel 1: NPC 設定 -->
                 <div class="workspace-panel" style="padding: 30px;">
                     <div class="editor-form-group">
-                        <h3>👤 主角造型與貼圖編輯</h3>
-                        <div class="form-row">
-                            <label>主角衣服顏色</label>
-                            <input type="color" id="editor-player-color" value="#00a2ff" style="height: 45px; padding: 4px;">
-                        </div>
-                        <div class="form-row">
-                            <label>上傳自定義角色貼圖 / 圖示</label>
-                            <input type="file" id="editor-player-texture" accept="image/*">
-                        </div>
-                    </div>
-
-
-                    <div class="editor-form-group">
-                        <h3>🤖 NPC (非玩家角色) 設定</h3>
+                        <h3>🤖 NPC 對話與位置設定</h3>
                         <div class="form-row">
                             <label>NPC 名稱</label>
                             <input type="text" id="editor-npc-name" value="守衛機器人">
                         </div>
                         <div class="form-row">
-                            <label>NPC 衣服顏色</label>
-                            <input type="color" id="editor-npc-color" value="#ec4899" style="height: 45px; padding: 4px;">
+                            <label>NPC 對話內容 (當玩家長按右鍵互動時顯示)</label>
+                            <textarea id="editor-npc-dialogue" rows="4">你好，冒險者！歡迎來到這個巨大的 3D 世界！請小心不要掉出邊界喔！</textarea>
                         </div>
                         <div class="form-row">
-                            <label>上傳自定義 NPC 貼圖</label>
-                            <input type="file" id="editor-npc-texture" accept="image/*">
+                            <label>NPC 位置座標 (X, Y, Z)</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="number" id="editor-npc-x" value="4" style="width: 100px;">
+                                <input type="number" id="editor-npc-y" value="0" style="width: 100px;">
+                                <input type="number" id="editor-npc-z" value="-4" style="width: 100px;">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label>NPC 衣服顏色</label>
+                            <input type="color" id="editor-npc-color" value="#ec4899" style="height: 45px; padding: 4px;">
                         </div>
                     </div>
                 </div>
 
+                <!-- Panel 2: HTML 程式碼運行設定 -->
+                <div class="workspace-panel" style="padding: 30px;">
+                    <div class="editor-form-group" style="max-width: 800px; height: 100%; display: flex; flex-direction: column;">
+                        <h3>🌐 自定義 HTML 互動程式碼設定</h3>
+                        <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 12px;">在此輸入完整的 HTML / CSS / JS 程式碼。玩家在遊戲中點擊右上角的按鈕即可開啟並運行此網頁！</p>
+                        <div class="form-row" style="flex-grow: 1;">
+                            <textarea id="editor-html-code" style="width: 100%; height: 260px; font-family: monospace; font-size: 0.95rem; background: #0f172a;"><div style="text-align: center; padding: 20px; font-family: sans-serif; background: #f8fafc; color: #1e293b; height: 100%;">
+    <h2 style="color: #0284c7; margin-bottom: 10px;">🌟 遊戲內嵌網頁工具</h2>
+    <p style="font-size: 0.9rem; margin-bottom: 15px;">這是您透過 HTML 程式碼直接在 3D 遊戲中運行的互動面板！</p>
+    <button onclick="alert('哈囉！這是 HTML 內的互動按鈕！')" style="background: #00a2ff; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold;">點我測試</button>
+</div></textarea>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- Panel 3: 發布設定 -->
                 <div class="workspace-panel" style="padding: 30px;">
                     <div class="editor-form-group">
                         <h3>🖼️ 遊戲大廳封面縮圖上傳</h3>
@@ -600,45 +639,64 @@
             </div>
         </div>
 
-
         <!-- 4. 遊戲遊玩畫面 -->
         <div id="play-view" class="view">
             <div class="studio-header" style="margin-bottom: 10px;">
                 <h2 id="playing-game-title" style="font-size: 1.2rem;">正在遊玩遊戲</h2>
                 <button class="btn-roblox-secondary" style="width: auto; padding: 8px 20px; margin: 0;" onclick="switchView('lobby-view')">離開遊戲返回大廳</button>
             </div>
+            
             <div class="three-canvas-container" id="play-canvas-container">
                 <div class="editor-tips" style="bottom: 15px; left: 15px; z-index: 25;">
-                    🎮 <b>平板/電腦操作</b>：左下角圓形搖桿滑動移動 | <b>滑鼠右鍵或單指拖移</b>旋轉視角 (不會自動回彈)
+                    🎮 <b>操作指南</b>：左下角圓形搖桿移動 | <b>滑鼠右鍵或單指拖移</b>旋轉視角 | **長按右鍵**與 NPC 對話
                 </div>
             </div>
+
+            <!-- 開啟內嵌 HTML 網頁按鈕 -->
+            <button id="toggle-html-btn" onclick="toggleEmbeddedHtmlWindow()">🌐 開啟 HTML 互動面板</button>
+
+            <!-- 內嵌 HTML 運行視窗 -->
+            <div id="embedded-html-container">
+                <div class="html-container-header">
+                    <span>遊戲內嵌 HTML 運行視窗</span>
+                    <button onclick="toggleEmbeddedHtmlWindow()" style="background: none; color: #f87171; font-size: 1.1rem; padding: 2px 6px;">✕</button>
+                </div>
+                <iframe id="html-render-iframe"></iframe>
+            </div>
+
             <!-- 左下角虛擬搖桿 -->
             <div id="virtual-joystick-zone">
                 <div id="virtual-joystick-knob"></div>
             </div>
+
+            <!-- NPC 對話泡泡框 -->
+            <div id="dialogue-box">
+                <div id="dialogue-npc-name">NPC 名稱</div>
+                <div id="dialogue-text">對話內容...</div>
+                <button class="btn-roblox-primary" style="padding: 8px 16px; font-size: 0.9rem;" onclick="closeDialogue()">關閉對話</button>
+            </div>
         </div>
 
-
     </div>
-
 
     <script>
         let currentUser = null;
         let customPlayerColor = 0x00a2ff;
-        let customPlayerTextureUrl = null;
-        let customNpcConfig = { name: "守衛機器人", color: 0xec4899, textureUrl: null };
         let customGameIconUrl = null;
-
+        let activeNpcConfig = { name: "守衛機器人", dialogue: "你好，冒險者！", x: 4, y: 0, z: -4, color: 0xec4899 };
+        let activeHtmlCode = "";
 
         function initCloudDatabase() {
             if (!localStorage.getItem('yorker_cloud_games')) {
                 const defaultGames = [
                     {
                         id: 'game_official_1',
-                        title: '方塊人大冒險',
+                        title: '方塊人大冒險 (巨大地圖)',
                         author: 'yorker官方',
                         icon: '🤖',
-                        playerColor: 0x00a2ff
+                        playerColor: 0x00a2ff,
+                        npc: { name: "官方導覽員", dialogue: "歡迎來到 yorker 雲端遊戲平台！這是一張巨大地圖，盡情探索吧！", x: 5, y: 0, z: -5, color: 0x3b82f6 },
+                        htmlCode: '<div style="padding:20px; font-family:sans-serif; text-align:center;"><h2 style="color:#00a2ff;">官方小工具</h2><p>這是預設遊戲內的 HTML 互動網頁！</p></div>'
                     }
                 ];
                 localStorage.setItem('yorker_cloud_games', JSON.stringify(defaultGames));
@@ -649,24 +707,20 @@
         }
         initCloudDatabase();
 
-
         function showAuthError(msg) {
             const errBox = document.getElementById('auth-error-msg');
             errBox.innerText = msg;
             errBox.style.display = 'block';
         }
 
-
         function registerAccount() {
             const username = document.getElementById('username-input').value.trim();
             const password = document.getElementById('password-input').value.trim();
-
 
             if (!username || !password) {
                 showAuthError('⚠️ 帳號與密碼皆不得為空！');
                 return;
             }
-
 
             let users = JSON.parse(localStorage.getItem('yorker_cloud_users'));
             if (users[username]) {
@@ -674,10 +728,8 @@
                 return;
             }
 
-
             users[username] = { password: password, createdAt: new Date().toISOString() };
             localStorage.setItem('yorker_cloud_users', JSON.stringify(users));
-
 
             currentUser = username;
             document.getElementById('current-user-display').innerText = currentUser;
@@ -686,17 +738,14 @@
             switchView('lobby-view');
         }
 
-
         function loginAccount() {
             const username = document.getElementById('username-input').value.trim();
             const password = document.getElementById('password-input').value.trim();
-
 
             if (!username || !password) {
                 showAuthError('⚠️ 請輸入您的帳號與密碼！');
                 return;
             }
-
 
             let users = JSON.parse(localStorage.getItem('yorker_cloud_users'));
             if (!users[username]) {
@@ -704,12 +753,10 @@
                 return;
             }
 
-
             if (users[username].password !== password) {
                 showAuthError('⚠️ 密碼錯誤，請重新輸入！');
                 return;
             }
-
 
             currentUser = username;
             document.getElementById('current-user-display').innerText = currentUser;
@@ -717,7 +764,6 @@
             loadCloudLobbyGames();
             switchView('lobby-view');
         }
-
 
         function logout() {
             currentUser = null;
@@ -727,30 +773,31 @@
             switchView('auth-view');
         }
 
-
         function switchView(viewId) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
             
-            // 控制遊玩畫面的虛擬搖桿顯示
             const joystickZone = document.getElementById('virtual-joystick-zone');
+            const htmlBtn = document.getElementById('toggle-html-btn');
+            const htmlWindow = document.getElementById('embedded-html-container');
+
             if (viewId === 'play-view') {
                 joystickZone.style.display = 'block';
+                htmlBtn.style.display = 'block';
             } else {
                 joystickZone.style.display = 'none';
+                htmlBtn.style.display = 'none';
+                htmlWindow.style.display = 'none';
             }
-
 
             setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 50);
         }
 
-
         function openStudio() {
-            document.getElementById('game-title-input').value = currentUser + " 的 3D 世界";
+            document.getElementById('game-title-input').value = currentUser + " 的巨大 3D 世界";
             switchView('studio-view');
             initStudio3D();
         }
-
 
         function switchStudioTab(index) {
             const panels = document.querySelectorAll('.workspace-panel');
@@ -762,12 +809,10 @@
             if(index === 0) setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
         }
 
-
         function loadCloudLobbyGames() {
             const grid = document.getElementById('game-grid');
             grid.innerHTML = '';
             const games = JSON.parse(localStorage.getItem('yorker_cloud_games')) || [];
-
 
             games.forEach(g => {
                 const card = document.createElement('div');
@@ -777,24 +822,21 @@
                     thumbHtml = `<div class="game-thumbnail"><img src="${g.iconData}" alt="Thumbnail"></div>`;
                 }
 
-
                 card.innerHTML = `
                     ${thumbHtml}
                     <div class="game-details">
                         <div class="game-title">${g.title}</div>
                         <div class="game-author">作者: ${g.author}</div>
-                        <button class="btn-roblox-primary" style="padding: 6px; font-size: 0.85rem; margin-top: 5px;" onclick="playGame('${g.title}', ${g.playerColor || 0x00a2ff})">開始遊玩</button>
+                        <button class="btn-roblox-primary" style="padding: 6px; font-size: 0.85rem; margin-top: 5px;" onclick='playGameObj(${JSON.stringify(g)})'>開始遊玩</button>
                     </div>
                 `;
                 grid.appendChild(card);
             });
         }
 
-
         // --- 3D 編輯器 ---
         let studioScene, studioCamera, studioRenderer, studioControls, studioTransformControls;
         let studioBlocks = [];
-
 
         function initStudio3D() {
             if (studioRenderer) return;
@@ -803,44 +845,35 @@
             studioScene = new THREE.Scene();
             studioScene.background = new THREE.Color(0x0f172a);
 
-
             studioCamera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
-            studioCamera.position.set(6, 6, 6);
-
+            studioCamera.position.set(10, 10, 10);
 
             studioRenderer = new THREE.WebGLRenderer({ antialias: true });
             studioRenderer.setSize(container.clientWidth, container.clientHeight);
             container.appendChild(studioRenderer.domElement);
 
-
             studioControls = new THREE.OrbitControls(studioCamera, studioRenderer.domElement);
-            // 允許右鍵或任意單指拖移旋轉視角，且不會自動回彈
             studioControls.mouseButtons = { LEFT: THREE.MOUSE.NONE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
             studioControls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
-
 
             studioTransformControls = new THREE.TransformControls(studioCamera, studioRenderer.domElement);
             studioScene.add(studioTransformControls);
             studioTransformControls.addEventListener('dragging-changed', (e) => { studioControls.enabled = !e.value; });
-
 
             studioScene.add(new THREE.AmbientLight(0xffffff, 0.7));
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
             dirLight.position.set(10, 20, 10);
             studioScene.add(dirLight);
 
-
-            const gridHelper = new THREE.GridHelper(20, 20, 0x00a2ff, 0x334155);
+            // 巨大網格與地板
+            const gridHelper = new THREE.GridHelper(60, 60, 0x00a2ff, 0x334155);
             gridHelper.position.y = -0.01;
             studioScene.add(gridHelper);
 
-
             addStudioBlock(0, 0.5, 0, 0x00a2ff);
-
 
             const raycaster = new THREE.Raycaster();
             const mouse = new THREE.Vector2();
-
 
             studioRenderer.domElement.addEventListener('pointerdown', (event) => {
                 if (event.button !== 0 && event.pointerType === 'mouse') return;
@@ -852,7 +885,6 @@
                 if (intersects.length > 0) studioTransformControls.attach(intersects[0].object);
             });
 
-
             function animateStudio() {
                 requestAnimationFrame(animateStudio);
                 studioControls.update();
@@ -860,7 +892,6 @@
             }
             animateStudio();
         }
-
 
         function addStudioBlock(x = 0, y = 0.5, z = 0, colorHex = 0x7c3aed) {
             const geo = new THREE.BoxGeometry(1, 1, 1);
@@ -871,7 +902,6 @@
             studioBlocks.push(mesh);
             studioTransformControls.attach(mesh);
         }
-
 
         function deleteSelectedStudioBlock() {
             const obj = studioTransformControls.object;
@@ -884,15 +914,13 @@
             }
         }
 
-
-        // --- 遊戲遊玩與虛擬搖桿系統 ---
+        // --- 遊戲遊玩與 NPC 互動、HTML 運行系統 ---
         let playScene, playCamera, playRenderer, playControls;
         let avatarGroup, leftArm, rightArm, leftLeg, rightLeg;
         let keyStates = { w: false, a: false, s: false, d: false };
-        let joystickVector = { x: 0, y: 0 }; // 搖桿方向向量
+        let joystickVector = { x: 0, y: 0 };
         let isPlayInitialized = false;
         let clock = new THREE.Clock();
-
 
         let isFalling = false;
         let isShattered = false;
@@ -900,100 +928,96 @@
         let fallVelocity = 0;
         let respawnTimer = 0;
         let activePlayerColor = 0x00a2ff;
-
+        let currentNpcMesh = null;
 
         function previewGame() {
-            activePlayerColor = parseInt(document.getElementById('editor-player-color').value.replace('#', '0x'));
-            const pTextureInput = document.getElementById('editor-player-texture');
-            if (pTextureInput.files && pTextureInput.files[0]) {
-                customPlayerTextureUrl = URL.createObjectURL(pTextureInput.files[0]);
-            }
+            collectStudioData();
+            document.getElementById('playing-game-title').innerText = "預覽遊戲: " + (document.getElementById('game-title-input').value || "未命名");
+            switchView('play-view');
+            initPlay3D();
+        }
 
+        function playGameObj(g) {
+            document.getElementById('playing-game-title').innerText = "正在遊玩: " + g.title;
+            activePlayerColor = g.playerColor || 0x00a2ff;
+            if (g.npc) activeNpcConfig = g.npc;
+            activeHtmlCode = g.htmlCode || "<p>尚無 HTML 程式碼</p>";
+            
+            switchView('play-view');
+            initPlay3D();
+        }
+
+        function collectStudioData() {
+            activePlayerColor = 0x00a2ff;
+            activeNpcConfig = {
+                name: document.getElementById('editor-npc-name').value || "NPC",
+                dialogue: document.getElementById('editor-npc-dialogue').value || "你好！",
+                x: parseFloat(document.getElementById('editor-npc-x').value) || 4,
+                y: parseFloat(document.getElementById('editor-npc-y').value) || 0,
+                z: parseFloat(document.getElementById('editor-npc-z').value) || -4,
+                color: parseInt(document.getElementById('editor-npc-color').value.replace('#', '0x'))
+            };
+            activeHtmlCode = document.getElementById('editor-html-code').value || "";
 
             const gameIconInput = document.getElementById('editor-game-icon');
             if (gameIconInput.files && gameIconInput.files[0]) {
                 customGameIconUrl = URL.createObjectURL(gameIconInput.files[0]);
             }
-
-
-            document.getElementById('playing-game-title').innerText = "預覽遊戲: " + (document.getElementById('game-title-input').value || "未命名");
-            switchView('play-view');
-            initPlay3D(activePlayerColor);
         }
 
-
-        function playGame(title, pColor) {
-            document.getElementById('playing-game-title').innerText = "正在遊玩: " + title;
-            switchView('play-view');
-            initPlay3D(pColor || 0x00a2ff);
-        }
-
-
-        function initPlay3D(playerColorHex) {
-            activePlayerColor = playerColorHex;
+        function initPlay3D() {
             const container = document.getElementById('play-canvas-container');
             
             if (!isPlayInitialized) {
                 playScene = new THREE.Scene();
                 playScene.background = new THREE.Color(0x0f172a);
 
-
                 playCamera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
-
 
                 playRenderer = new THREE.WebGLRenderer({ antialias: true });
                 playRenderer.setSize(container.clientWidth, container.clientHeight);
                 container.appendChild(playRenderer.domElement);
 
-
                 playControls = new THREE.OrbitControls(playCamera, playRenderer.domElement);
-                // 設定滑鼠右鍵或觸控單指旋轉視角，且保持靜止不自動彈回
                 playControls.mouseButtons = { LEFT: THREE.MOUSE.NONE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
                 playControls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
                 playControls.enablePan = false;
                 playControls.maxPolarAngle = Math.PI / 2 - 0.05;
-
 
                 playScene.add(new THREE.AmbientLight(0xffffff, 0.7));
                 const dLight = new THREE.DirectionalLight(0xffffff, 0.8);
                 dLight.position.set(10, 20, 10);
                 playScene.add(dLight);
 
-
+                // 巨大化地板 (尺寸 50 x 50)
                 const floor = new THREE.Mesh(
-                    new THREE.PlaneGeometry(16, 16),
+                    new THREE.PlaneGeometry(50, 50),
                     new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 })
                 );
                 floor.rotation.x = -Math.PI / 2;
                 playScene.add(floor);
 
-
                 createNpcInScene();
                 createAvatar();
                 initVirtualJoystick();
-
+                initRightClickDialogueListener();
 
                 function animatePlay() {
                     requestAnimationFrame(animatePlay);
                     const delta = clock.getDelta();
 
-
                     if (!isShattered) {
-                        const speed = 0.08;
+                        const speed = 0.09;
                         let isMoving = false;
                         let moveX = 0;
                         let moveZ = 0;
 
-
                         if (!isFalling) {
-                            // 鍵盤 WASD 控制
                             if (keyStates.w) { moveZ -= speed; isMoving = true; }
                             if (keyStates.s) { moveZ += speed; isMoving = true; }
                             if (keyStates.a) { moveX -= speed; isMoving = true; }
                             if (keyStates.d) { moveX += speed; isMoving = true; }
 
-
-                            // 虛擬搖桿控制
                             if (Math.abs(joystickVector.x) > 0.05 || Math.abs(joystickVector.y) > 0.05) {
                                 moveX += joystickVector.x * speed * 1.5;
                                 moveZ += joystickVector.y * speed * 1.5;
@@ -1001,13 +1025,11 @@
                             }
                         }
 
-
                         if (isMoving) {
                             avatarGroup.position.x += moveX;
                             avatarGroup.position.z += moveZ;
                             const angle = Math.atan2(moveX, moveZ);
                             avatarGroup.rotation.y = angle;
-
 
                             const walkCycle = clock.getElapsedTime() * 12;
                             leftLeg.rotation.x = Math.sin(walkCycle) * 0.6;
@@ -1021,21 +1043,18 @@
                             rightArm.rotation.x = THREE.MathUtils.lerp(rightArm.rotation.x, 0, 0.2);
                         }
 
-
-                        const edgeLimit = 7.5;
+                        // 巨大地圖邊界判定 (24格)
+                        const edgeLimit = 24;
                         const px = avatarGroup.position.x;
                         const pz = avatarGroup.position.z;
-
 
                         if (Math.abs(px) > edgeLimit || Math.abs(pz) > edgeLimit) {
                             isFalling = true;
                         }
 
-
                         if (isFalling) {
                             fallVelocity += 0.015;
                             avatarGroup.position.y -= fallVelocity;
-
 
                             if (avatarGroup.position.y < -5 && !isShattered) {
                                 triggerShatterAndRespawn();
@@ -1048,13 +1067,11 @@
                             p.mesh.rotation.y += p.rotSpeed.y;
                         });
 
-
                         respawnTimer += delta;
                         if (respawnTimer > 2.0) {
                             resetAvatar();
                         }
                     }
-
 
                     const targetCamPos = new THREE.Vector3(
                         avatarGroup.position.x,
@@ -1066,40 +1083,91 @@
                     playControls.target.y = Math.max(avatarGroup.position.y, 0) + 1;
                     playControls.update();
 
-
                     playRenderer.render(playScene, playCamera);
                 }
                 animatePlay();
                 isPlayInitialized = true;
             } else {
+                updateNpcInScene();
                 updateAvatarShirtColor();
             }
-
 
             resetAvatar();
             window.dispatchEvent(new Event('resize'));
         }
 
+        // --- 長按滑鼠右鍵與 NPC 對話偵測 ---
+        function initRightClickDialogueListener() {
+            const container = document.getElementById('play-canvas-container');
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+            let rightClickTimer = null;
 
-        // --- 左下角可滑動圓形虛擬搖桿邏輯 ---
+            container.addEventListener('pointerdown', (e) => {
+                if (e.button === 2) { // 右鍵按下
+                    rightClickTimer = setTimeout(() => {
+                        checkNpcInteraction();
+                    }, 500); // 長按 0.5 秒觸發對話
+                }
+            });
+
+            container.addEventListener('pointerup', (e) => {
+                if (e.button === 2) {
+                    clearTimeout(rightClickTimer);
+                }
+            });
+
+            function checkNpcInteraction() {
+                if (!currentNpcMesh || !avatarGroup) return;
+                const distance = avatarGroup.position.distanceTo(currentNpcMesh.position);
+                if (distance < 5.0) { // 距離 5 單位以內可對話
+                    showDialogue(activeNpcConfig.name, activeNpcConfig.dialogue);
+                } else {
+                    showDialogue("提示", "離 NPC 太遠了，請靠近一點再長按右鍵對話！");
+                }
+            }
+        }
+
+        function showDialogue(name, text) {
+            document.getElementById('dialogue-npc-name').innerText = name;
+            document.getElementById('dialogue-text').innerText = text;
+            document.getElementById('dialogue-box').style.display = 'block';
+        }
+
+        function closeDialogue() {
+            document.getElementById('dialogue-box').style.display = 'none';
+        }
+
+        // --- 內嵌 HTML 視窗開關與加載 ---
+        function toggleEmbeddedHtmlWindow() {
+            const win = document.getElementById('embedded-html-container');
+            const iframe = document.getElementById('html-render-iframe');
+            
+            if (win.style.display === 'flex') {
+                win.style.display = 'none';
+            } else {
+                win.style.display = 'flex';
+                // 透過 srcdoc 將使用者寫的 HTML 渲染至 iframe 內運行
+                iframe.srcdoc = activeHtmlCode;
+            }
+        }
+
+        // --- 虛擬搖桿 ---
         function initVirtualJoystick() {
             const zone = document.getElementById('virtual-joystick-zone');
             const knob = document.getElementById('virtual-joystick-knob');
             let isTouching = false;
-            let maxRadius = 45; // 搖桿最大可滑動半徑
-
+            let maxRadius = 45;
 
             zone.addEventListener('pointerdown', (e) => {
                 isTouching = true;
                 updateJoystickPosition(e);
             });
 
-
             window.addEventListener('pointermove', (e) => {
                 if (!isTouching) return;
                 updateJoystickPosition(e);
             });
-
 
             window.addEventListener('pointerup', () => {
                 if (!isTouching) return;
@@ -1109,121 +1177,96 @@
                 knob.style.transform = `translate(0px, 0px)`;
             });
 
-
             function updateJoystickPosition(e) {
                 const rect = zone.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
 
-
                 const dx = e.clientX - centerX;
                 const dy = e.clientY - centerY;
                 const distance = Math.sqrt(dx * dx + dy * dy);
 
-
                 let angle = Math.atan2(dy, dx);
                 let clampedDist = Math.min(distance, maxRadius);
-
 
                 let moveX = Math.cos(angle) * clampedDist;
                 let moveY = Math.sin(angle) * clampedDist;
 
-
                 knob.style.transform = `translate(${moveX}px, ${moveY}px)`;
-
-
-                // 換算為正規化方向向量 (-1 到 1)
                 joystickVector.x = moveX / maxRadius;
                 joystickVector.y = moveY / maxRadius;
             }
         }
 
-
         function updateAvatarShirtColor() {
             if (!avatarGroup) return;
             const newShirtMat = new THREE.MeshStandardMaterial({ color: activePlayerColor });
-            if (customPlayerTextureUrl) {
-                newShirtMat.map = new THREE.TextureLoader().load(customPlayerTextureUrl);
-            }
             avatarGroup.children.forEach(child => {
-                if (child === leftArm || child === rightArm || child.geometry.type === 'BoxGeometry' && child.position.y === 1.25) {
+                if (child === leftArm || child === rightArm || (child.geometry.type === 'BoxGeometry' && child.position.y === 1.25)) {
                     child.material = newShirtMat;
                 }
             });
         }
 
-
         function createNpcInScene() {
-            const npcGroup = new THREE.Group();
-            const npcBody = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.9, 0.4), new THREE.MeshStandardMaterial({ color: customNpcConfig.color }));
-            npcBody.position.y = 1.25;
-            npcGroup.add(npcBody);
+            if (currentNpcMesh) playScene.remove(currentNpcMesh);
 
+            currentNpcMesh = new THREE.Group();
+            const npcBody = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.9, 0.4), new THREE.MeshStandardMaterial({ color: activeNpcConfig.color }));
+            npcBody.position.y = 1.25;
+            currentNpcMesh.add(npcBody);
 
             const npcHead = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), new THREE.MeshStandardMaterial({ color: 0xfacc15 }));
             npcHead.position.y = 1.9;
-            npcGroup.add(npcHead);
+            currentNpcMesh.add(npcHead);
 
-
-            npcGroup.position.set(3, 0, -3);
-            playScene.add(npcGroup);
+            currentNpcMesh.position.set(activeNpcConfig.x, activeNpcConfig.y, activeNpcConfig.z);
+            playScene.add(currentNpcMesh);
         }
 
+        function updateNpcInScene() {
+            createNpcInScene();
+        }
 
         function createAvatar() {
             avatarGroup = new THREE.Group();
-            const textureLoader = new THREE.TextureLoader();
-
-
             const skinMat = new THREE.MeshStandardMaterial({ color: 0xfacc15 }); 
-            let shirtMat = new THREE.MeshStandardMaterial({ color: activePlayerColor }); 
-            if (customPlayerTextureUrl) {
-                shirtMat.map = textureLoader.load(customPlayerTextureUrl);
-            }
+            const shirtMat = new THREE.MeshStandardMaterial({ color: activePlayerColor }); 
             const pantsMat = new THREE.MeshStandardMaterial({ color: 0x334155 }); 
-
 
             const head = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), skinMat);
             head.position.y = 1.9;
             avatarGroup.add(head);
 
-
             const torso = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.9, 0.4), shirtMat);
             torso.position.y = 1.25;
             avatarGroup.add(torso);
-
 
             leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.8, 0.3), shirtMat);
             leftArm.position.set(-0.55, 1.25, 0);
             avatarGroup.add(leftArm);
 
-
             rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.8, 0.3), shirtMat);
             rightArm.position.set(0.55, 1.25, 0);
             avatarGroup.add(rightArm);
-
 
             leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.8, 0.35), pantsMat);
             leftLeg.geometry.translate(0, -0.4, 0);
             leftLeg.position.set(-0.2, 0.8, 0);
             avatarGroup.add(leftLeg);
 
-
             rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.8, 0.35), pantsMat);
             rightLeg.geometry.translate(0, -0.4, 0);
             rightLeg.position.set(0.2, 0.8, 0);
             avatarGroup.add(rightLeg);
 
-
             playScene.add(avatarGroup);
         }
-
 
         function triggerShatterAndRespawn() {
             isShattered = true;
             playScene.remove(avatarGroup);
             shatterPieces = [];
-
 
             const parts = [
                 { geo: new THREE.BoxGeometry(0.6, 0.6, 0.6), mat: new THREE.MeshStandardMaterial({ color: 0xfacc15 }) },
@@ -1234,13 +1277,11 @@
                 { geo: new THREE.BoxGeometry(0.35, 0.8, 0.35), mat: new THREE.MeshStandardMaterial({ color: 0x334155 }) }
             ];
 
-
             parts.forEach((p) => {
                 const mesh = new THREE.Mesh(p.geo, p.mat);
                 mesh.position.copy(avatarGroup.position);
                 mesh.position.y += 1;
                 playScene.add(mesh);
-
 
                 const velocity = new THREE.Vector3(
                     (Math.random() - 0.5) * 0.2,
@@ -1253,33 +1294,27 @@
                     Math.random() * 0.1
                 );
 
-
                 shatterPieces.push({ mesh, velocity, rotSpeed });
             });
         }
-
 
         function resetAvatar() {
             shatterPieces.forEach(p => playScene.remove(p.mesh));
             shatterPieces = [];
 
-
             if (avatarGroup) {
                 playScene.remove(avatarGroup);
             }
 
-
             createAvatar();
             avatarGroup.position.set(0, 0, 0);
             avatarGroup.rotation.set(0, 0, 0);
-
 
             isFalling = false;
             isShattered = false;
             fallVelocity = 0;
             respawnTimer = 0;
         }
-
 
         window.addEventListener('keydown', (e) => {
             const k = e.key.toLowerCase();
@@ -1289,7 +1324,6 @@
             if (k === 'd') keyStates.d = true;
         });
 
-
         window.addEventListener('keyup', (e) => {
             const k = e.key.toLowerCase();
             if (k === 'w') keyStates.w = false;
@@ -1298,11 +1332,9 @@
             if (k === 'd') keyStates.d = false;
         });
 
-
         function publishGameToCloud() {
+            collectStudioData();
             const title = document.getElementById('game-title-input').value || "未命名遊戲";
-            activePlayerColor = parseInt(document.getElementById('editor-player-color').value.replace('#', '0x'));
-
 
             let games = JSON.parse(localStorage.getItem('yorker_cloud_games')) || [];
             
@@ -1313,16 +1345,16 @@
                 icon: '🎮',
                 iconType: customGameIconUrl ? 'image' : 'emoji',
                 iconData: customGameIconUrl,
-                playerColor: activePlayerColor
+                playerColor: activePlayerColor,
+                npc: activeNpcConfig,
+                htmlCode: activeHtmlCode
             };
-
 
             games.unshift(newGameObj);
             localStorage.setItem('yorker_cloud_games', JSON.stringify(games));
 
-
             loadCloudLobbyGames();
-            alert('🎉 您的遊戲與帳號創作紀錄已成功同步至雲端資料庫！');
+            alert('🎉 您的巨大地圖遊戲、NPC 對話與 HTML 程式碼已成功同步至雲端資料庫！');
             switchView('lobby-view');
         }
     </script>
