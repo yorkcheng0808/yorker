@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>yorker - Roblox 風格雲端 3D 遊戲平台 (含掉落碎裂與重生點系統)</title>
+    <title>yorker - Roblox 風格雲端 3D 遊戲平台 (含精巧按鈕與視角方向移動)</title>
     <!-- 引入 Three.js 及其控制器 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -339,16 +339,23 @@
             overflow: hidden;
         }
 
+        /* 縮小後的物件與場地按鈕 */
         .editor-ui-overlay {
             position: absolute;
             top: 15px;
             left: 15px;
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
             z-index: 5;
             pointer-events: auto;
-            max-width: 800px;
+            max-width: 750px;
+        }
+
+        .editor-ui-overlay button {
+            padding: 5px 8px !important;
+            font-size: 0.8rem !important;
+            border-radius: 6px !important;
         }
 
         .editor-tips {
@@ -616,24 +623,24 @@
             </div>
 
             <div class="studio-workspace">
-                <!-- Panel 0: 3D 編輯器與元件庫 -->
+                <!-- Panel 0: 3D 編輯器與元件庫 (按鈕已變小) -->
                 <div class="workspace-panel active" style="padding: 0;">
                     <div class="editor-ui-overlay">
-                        <button class="btn-roblox-primary" style="padding: 7px 10px;" onclick="addStudioBlock('cube')">+ 方塊</button>
-                        <button class="btn-roblox-primary" style="padding: 7px 10px; background: #059669;" onclick="addStudioComponent('spawn')">🚩 重生點</button>
-                        <button class="btn-roblox-primary" style="padding: 7px 10px; background: #d97706;" onclick="addStudioComponent('checkpoint')">💾 儲存點</button>
-                        <button class="btn-roblox-primary" style="padding: 7px 10px; background: #10b981;" onclick="addStudioComponent('tree')">🌲 路樹</button>
-                        <button class="btn-roblox-primary" style="padding: 7px 10px; background: #6366f1;" onclick="addStudioComponent('house')">🏠 屋子</button>
-                        <button class="btn-roblox-primary" style="padding: 7px 10px; background: #ec4899;" onclick="addStudioComponent('npc')">🤖 NPC</button>
-                        <button class="btn-roblox-primary" style="padding: 7px 10px; background: #0284c7;" onclick="addStudioComponent('ramp')">📐 斜坡</button>
+                        <button class="btn-roblox-primary" onclick="addStudioBlock('cube')">+ 方塊</button>
+                        <button class="btn-roblox-primary" style="background: #059669;" onclick="addStudioComponent('spawn')">🚩 重生點</button>
+                        <button class="btn-roblox-primary" style="background: #d97706;" onclick="addStudioComponent('checkpoint')">💾 儲存點</button>
+                        <button class="btn-roblox-primary" style="background: #10b981;" onclick="addStudioComponent('tree')">🌲 路樹</button>
+                        <button class="btn-roblox-primary" style="background: #6366f1;" onclick="addStudioComponent('house')">🏠 屋子</button>
+                        <button class="btn-roblox-primary" style="background: #ec4899;" onclick="addStudioComponent('npc')">🤖 NPC</button>
+                        <button class="btn-roblox-primary" style="background: #0284c7;" onclick="addStudioComponent('ramp')">📐 斜坡</button>
                         
-                        <button class="btn-roblox-secondary" style="padding: 7px 10px; margin: 0; background: #334155;" onclick="setStudioTool('translate')">📍 移動</button>
-                        <button class="btn-roblox-secondary" style="padding: 7px 10px; margin: 0; background: #334155;" onclick="setStudioTool('rotate')">🔄 旋轉</button>
-                        <button class="btn-roblox-secondary" style="padding: 7px 10px; margin: 0; background: #7c3aed;" onclick="setStudioTool('scale')">📏 縮放</button>
-                        <button class="btn-roblox-secondary" style="padding: 7px 10px; margin: 0; background: #ef4444;" onclick="deleteSelectedStudioBlock()">🗑️ 刪除</button>
+                        <button class="btn-roblox-secondary" style="margin: 0; background: #334155;" onclick="setStudioTool('translate')">📍 移動</button>
+                        <button class="btn-roblox-secondary" style="margin: 0; background: #334155;" onclick="setStudioTool('rotate')">🔄 旋轉</button>
+                        <button class="btn-roblox-secondary" style="margin: 0; background: #7c3aed;" onclick="setStudioTool('scale')">📏 縮放</button>
+                        <button class="btn-roblox-secondary" style="margin: 0; background: #ef4444;" onclick="deleteSelectedStudioBlock()">🗑️ 刪除</button>
                     </div>
                     <div class="editor-tips">
-                        💡 <b>全新功能</b>：走到無地板的地方會自動掉落碎裂並返回最近的儲存點或重生點！
+                        💡 <b>提示</b>：按鈕已調整為更精巧的尺寸。走到無地板處會自動掉落碎裂並返回重生/儲存點！
                     </div>
                     <div class="three-canvas-container" id="studio-canvas-container"></div>
                 </div>
@@ -702,7 +709,7 @@
             
             <div class="three-canvas-container" id="play-canvas-container">
                 <div class="editor-tips" style="bottom: 15px; left: 15px; z-index: 25;">
-                    🎮 <b>操作說明</b>：左下角搖桿移動 | 右下角按鈕跳躍 | 碰到儲存點可更新重生點！
+                    🎮 <b>操作說明</b>：左下角搖桿移動 | 右下角按鈕跳躍 | 移動方向對齊視角前方！
                 </div>
             </div>
 
@@ -1170,7 +1177,7 @@
             const container = document.getElementById('play-canvas-container');
             container.innerHTML = `
                 <div class="editor-tips" style="bottom: 15px; left: 15px; z-index: 25;">
-                    🎮 <b>操作說明</b>：左下角搖桿 (或 WASD) 移動 | 右下角按鈕 (或空白鍵) 跳躍 | 碰觸儲存點更新重生點
+                    🎮 <b>操作說明</b>：左下角搖桿 (或 WASD) 移動 | 右下角按鈕 (或空白鍵) 跳躍 | 移動完美對齊視角前方！
                 </div>
             `;
 
@@ -1318,7 +1325,7 @@
                     }
                 }
 
-                // 水平移動與碰撞阻擋
+                // 移動方向精確對齊攝影機視角前方
                 if (moveX !== 0 || moveZ !== 0) {
                     const speed = 0.14;
                     const deltaX = (moveX * Math.cos(cameraAngle) - moveZ * Math.sin(cameraAngle)) * speed;
